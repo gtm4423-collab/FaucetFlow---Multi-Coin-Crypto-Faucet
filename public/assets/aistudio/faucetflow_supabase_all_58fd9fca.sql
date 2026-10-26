@@ -1,13 +1,21 @@
--- FaucetFlow schema for Supabase PostgreSQL.
--- Run this in Supabase SQL Editor. Test with non-production reward values first.
+-- ====================================================================
+-- FaucetFlow Complete PostgreSQL Schema for Supabase
+-- Includes: Multi-Coin Balances, 60s Cooldown Advisory Lock,
+-- 10% Referral Bonus Ledger, and Administrator Audit Security
+-- ====================================================================
+
+-- 1. Enable Cryptographic Extensions
 create extension if not exists pgcrypto;
 
+-- 2. User Profiles Table (With Optional Referrer Attribution)
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   username text unique,
+  referrer_id uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
+-- 3. Multi-Coin Balances Table (BTC, LTC, DOGE, USDT)
 create table if not exists public.balances (
   user_id uuid not null references auth.users(id) on delete cascade,
   coin text not null check (coin in ('BTC','LTC','DOGE','USDT')),
@@ -16,6 +24,7 @@ create table if not exists public.balances (
   primary key (user_id, coin)
 );
 
+-- 4. Reward Claims Ledger Table
 create table if not exists public.claims (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -24,25 +33,43 @@ create table if not exists public.claims (
   claimed_at timestamptz not null default now()
 );
 
+-- 4b. 10% Referral Claims Ledger Table
+create table if not exists public.referral_claims (
+  id uuid primary key default gen_random_uuid(),
+  referrer_id uuid not null references auth.users(id) on delete cascade,
+  referee_id uuid not null references auth.users(id) on delete cascade,
+  coin text not null check (coin in ('BTC','LTC','DOGE','USDT')),
+  amount numeric(28,12) not null check (amount > 0),
+  claimed_at timestamptz not null default now()
+);
+
+-- 5. Enable Row Level Security (RLS)
 alter table public.profiles enable row level security;
 alter table public.balances enable row level security;
 alter table public.claims enable row level security;
+alter table public.referral_claims enable row level security;
 
-drop policy if exists "profiles are viewable by owner" on public.profiles;
-create policy "profiles are viewable by owner" on public.profiles
-for select to authenticated using (auth.uid() = id);
+-- 6. Read Policies (Owner or Admin)
+drop policy if exists "profiles are viewable by owner or admin" on public.profiles;
+create policy "profiles are viewable by owner or admin" on public.profiles
+for select to authenticated using (auth.uid() = id or public.is_admin());
 
-drop policy if exists "balances are viewable by owner" on public.balances;
-create policy "balances are viewable by owner" on public.balances
-for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "balances are viewable by owner or admin" on public.balances;
+create policy "balances are viewable by owner or admin" on public.balances
+for select to authenticated using (auth.uid() = user_id or public.is_admin());
 
-drop policy if exists "claims are viewable by owner" on public.claims;
-create policy "claims are viewable by owner" on public.claims
-for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "claims are viewable by owner or admin" on public.claims;
+create policy "claims are viewable by owner or admin" on public.claims
+for select to authenticated using (auth.uid() = user_id or public.is_admin());
 
--- No client insert/update/delete policies are intentionally provided for balances or claims.
--- All reward mutations must go through the SECURITY DEFINER RPC below.
+drop policy if exists "referral claims are viewable by referrer or admin" on public.referral_claims;
+create policy "referral claims are viewable by referrer or admin" on public.referral_claims
+for select to authenticated using (auth.uid() = referrer_id or auth.uid() = referee_id or public.is_admin());
 
+-- Notice: Direct client insert/update/delete policies are intentionally prohibited.
+-- All balance mutations must execute via the SECURITY DEFINER RPC functions below.
+
+-- 7. Trigger: Automatically initialize profile & balances on user signup
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -51,11 +78,16 @@ set search_path = ''
 as $$
 declare
   safe_username text;
+  safe_referrer_id uuid;
 begin
   safe_username := nullif(trim(new.raw_user_meta_data ->> 'username'), '');
-  insert into public.profiles (id, username)
-  values (new.id, safe_username)
-  on conflict (id) do nothing;
+  safe_referrer_id := nullif(trim(new.raw_user_meta_data ->> 'referrer_id'), '')::uuid;
+
+  insert into public.profiles (id, username, referrer_id)
+  values (new.id, safe_username, safe_referrer_id)
+  on conflict (id) do update set
+    username = coalesce(excluded.username, public.profiles.username),
+    referrer_id = coalesce(excluded.referrer_id, public.profiles.referrer_id);
 
   insert into public.balances (user_id, coin, amount)
   values
@@ -73,8 +105,7 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
--- SECURITY NOTE: This uses deliberately tiny DEMO rewards and a 60-second cooldown.
--- Set real amounts only after defining funding, abuse prevention, legal/tax and payout policies.
+-- 8. Core Faucet Claim RPC Function (with 60-Second Cooldown, Advisory Locks & 10% Referral Bonus)
 create or replace function public.claim_reward(p_coin text)
 returns jsonb
 language plpgsql
@@ -85,6 +116,8 @@ declare
   uid uuid := auth.uid();
   reward numeric(28,12);
   last_claim timestamptz;
+  ref_id uuid;
+  ref_bonus numeric(28,12);
 begin
   if uid is null then
     raise exception 'Please sign in before claiming.';
@@ -110,24 +143,38 @@ begin
     when 'USDT' then 0.00010000
   end;
 
+  -- 1. Payout reward to the claimant
   insert into public.balances(user_id, coin, amount)
   values(uid, p_coin, reward)
   on conflict(user_id, coin)
   do update set amount = public.balances.amount + excluded.amount, updated_at = now();
 
   insert into public.claims(user_id, coin, amount) values(uid, p_coin, reward);
+
+  -- 2. 10% Referral Commission Payout to Referrer
+  select referrer_id into ref_id from public.profiles where id = uid;
+  if ref_id is not null and ref_id <> uid then
+    ref_bonus := round(reward * 0.10, 12);
+    if ref_bonus > 0 then
+      insert into public.balances(user_id, coin, amount)
+      values(ref_id, p_coin, ref_bonus)
+      on conflict(user_id, coin)
+      do update set amount = public.balances.amount + excluded.amount, updated_at = now();
+
+      insert into public.referral_claims(referrer_id, referee_id, coin, amount)
+      values(ref_id, uid, p_coin, ref_bonus);
+    end if;
+  end if;
+
   return jsonb_build_object('coin', p_coin, 'amount', reward, 'claimed_at', now());
 end;
 $$;
 
 revoke all on function public.claim_reward(text) from public;
 grant execute on function public.claim_reward(text) to authenticated;
+grant select on public.profiles, public.balances, public.claims, public.referral_claims to authenticated;
 
-grant select on public.profiles, public.balances, public.claims to authenticated;
--- IMPORTANT: Do not expose the Supabase service-role key in client code.
-
--- Admin panel access controls. Run this section after the base schema.
--- Promote an administrator manually using the SQL shown in README.md.
+-- 9. Admin Roles & Access Control
 create table if not exists public.admin_roles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   created_at timestamptz not null default now()
@@ -152,115 +199,3 @@ as $$
 $$;
 revoke all on function public.is_admin() from public;
 grant execute on function public.is_admin() to authenticated;
-
--- Existing owner-only read policies are replaced with owner OR admin policies.
-drop policy if exists "profiles are viewable by owner" on public.profiles;
-drop policy if exists "profiles are viewable by owner or admin" on public.profiles;
-create policy "profiles are viewable by owner or admin" on public.profiles
-for select to authenticated using (auth.uid() = id or public.is_admin());
-
-drop policy if exists "balances are viewable by owner" on public.balances;
-drop policy if exists "balances are viewable by owner or admin" on public.balances;
-create policy "balances are viewable by owner or admin" on public.balances
-for select to authenticated using (auth.uid() = user_id or public.is_admin());
-
-drop policy if exists "claims are viewable by owner" on public.claims;
-drop policy if exists "claims are viewable by owner or admin" on public.claims;
-create policy "claims are viewable by owner or admin" on public.claims
-for select to authenticated using (auth.uid() = user_id or public.is_admin());
-
--- Return auth email to the admin UI only after checking the caller's role.
-create or replace function public.admin_list_users()
-returns table (id uuid, email text, username text, created_at timestamptz)
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if auth.uid() is null or not public.is_admin() then
-    raise exception 'Administrator access required.' using errcode = '42501';
-  end if;
-  return query
-    select u.id, u.email::text, p.username, u.created_at
-    from auth.users u
-    left join public.profiles p on p.id = u.id
-    order by u.created_at desc
-    limit 1000;
-end;
-$$;
-revoke all on function public.admin_list_users() from public;
-grant execute on function public.admin_list_users() to authenticated;
-
-
--- Secure admin activity logging (run after the existing FaucetFlow schema).
-create table if not exists public.admin_activity_logs (
-  id bigint generated always as identity primary key,
-  actor_user_id uuid references auth.users(id) on delete set null,
-  action text not null check (action in ('dashboard_view','users_view','claims_view','activity_logs_view','data_refresh')),
-  details jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now()
-);
-
-create index if not exists admin_activity_logs_created_at_idx
-  on public.admin_activity_logs (created_at desc);
-create index if not exists admin_activity_logs_actor_idx
-  on public.admin_activity_logs (actor_user_id, created_at desc);
-
-alter table public.admin_activity_logs enable row level security;
--- No direct table policies: reads/writes must go through checked RPCs.
-revoke all on table public.admin_activity_logs from anon, authenticated;
-
-create or replace function public.admin_log_activity(p_action text, p_details jsonb default '{}'::jsonb)
-returns void
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  uid uuid := auth.uid();
-  safe_details jsonb := coalesce(p_details, '{}'::jsonb);
-begin
-  if uid is null or not public.is_admin() then
-    raise exception 'Administrator access required.' using errcode = '42501';
-  end if;
-  if p_action not in ('dashboard_view','users_view','claims_view','activity_logs_view','data_refresh') then
-    raise exception 'Unsupported activity action.' using errcode = '22023';
-  end if;
-  if jsonb_typeof(safe_details) <> 'object' or length(safe_details::text) > 1000 then
-    raise exception 'Activity details must be a small JSON object.' using errcode = '22023';
-  end if;
-
-  insert into public.admin_activity_logs (actor_user_id, action, details)
-  values (uid, p_action, safe_details);
-end;
-$$;
-revoke all on function public.admin_log_activity(text, jsonb) from public, anon;
-grant execute on function public.admin_log_activity(text, jsonb) to authenticated;
-
-create or replace function public.admin_list_activity_logs()
-returns table (
-  id bigint,
-  actor_user_id uuid,
-  actor_email text,
-  action text,
-  details jsonb,
-  created_at timestamptz
-)
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if auth.uid() is null or not public.is_admin() then
-    raise exception 'Administrator access required.' using errcode = '42501';
-  end if;
-  return query
-    select l.id, l.actor_user_id, u.email::text, l.action, l.details, l.created_at
-    from public.admin_activity_logs l
-    left join auth.users u on u.id = l.actor_user_id
-    order by l.created_at desc
-    limit 200;
-end;
-$$;
-revoke all on function public.admin_list_activity_logs() from public, anon;
-grant execute on function public.admin_list_activity_logs() to authenticated;

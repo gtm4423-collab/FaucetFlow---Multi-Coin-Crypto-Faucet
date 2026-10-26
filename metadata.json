@@ -1,6 +1,6 @@
 {
   "name": "FaucetFlow - Multi-Coin Crypto Faucet",
-  "description": "Full-featured multi-coin crypto faucet (BTC, LTC, DOGE, USDT) with 60s cooldowns, balances, claims ledger, Supabase schema architecture, and complete admin dashboard.",
+  "description": "Full-featured multi-coin crypto faucet (BTC, LTC, DOGE, USDT) with 60s cooldowns, 2 offerwalls (Timewall & Monlix), 10% referral program, user dashboard, and Supabase PostgreSQL architecture.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

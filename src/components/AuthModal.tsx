@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { faucetDb } from '../lib/faucetStore';
-import { LogIn, UserPlus, Shield, X, Eye, EyeOff, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { LogIn, UserPlus, X, Eye, EyeOff, CheckCircle2, AlertCircle, Sparkles, Users } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,7 +20,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [makeAdmin, setMakeAdmin] = useState(false);
+  const [referrerCode, setReferrerCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +42,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsLoading(true);
 
     try {
-      await new Promise((res) => setTimeout(res, 300));
+      await new Promise((res) => setTimeout(res, 250));
       faucetDb.signIn(identifier);
       onSuccess();
       onClose();
@@ -67,8 +67,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsLoading(true);
 
     try {
-      await new Promise((res) => setTimeout(res, 400));
-      faucetDb.signUp(username, email, makeAdmin);
+      await new Promise((res) => setTimeout(res, 300));
+      faucetDb.signUp(username, email, referrerCode || null);
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -78,18 +78,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleQuickDemoLogin = (userType: 'user' | 'admin') => {
-    if (userType === 'user') {
+  const handleQuickDemoLogin = (userType: 'seeker' | 'satoshifan') => {
+    if (userType === 'seeker') {
       faucetDb.signIn('CryptoSeeker');
     } else {
-      faucetDb.signIn('FaucetAdmin');
+      faucetDb.signIn('SatoshiFan21');
     }
     onSuccess();
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
         {/* Close Button */}
         <button
@@ -112,7 +112,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </h2>
               <p className="text-[11px] text-slate-400">
                 {mode === 'signin'
-                  ? 'Access your balances, claim rewards, and track ledger history.'
+                  ? 'Access your balances, claim rewards, and complete offerwalls.'
                   : 'Get started and initialize your BTC, LTC, DOGE & USDT wallets.'}
               </p>
             </div>
@@ -126,7 +126,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 setMode('signin');
                 setError(null);
               }}
-              className={`py-1.5 rounded-md transition-all ${
+              className={`py-1.5 rounded-md transition-all cursor-pointer ${
                 mode === 'signin'
                   ? 'bg-slate-800 text-white shadow-sm font-bold'
                   : 'text-slate-400 hover:text-slate-200'
@@ -140,7 +140,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 setMode('signup');
                 setError(null);
               }}
-              className={`py-1.5 rounded-md transition-all ${
+              className={`py-1.5 rounded-md transition-all cursor-pointer ${
                 mode === 'signup'
                   ? 'bg-slate-800 text-white shadow-sm font-bold'
                   : 'text-slate-400 hover:text-slate-200'
@@ -177,7 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="text-slate-300 font-medium">Password</label>
-                <span className="text-[10px] text-slate-500">Any password for demo</span>
+                <span className="text-[10px] text-slate-500">Demo mode (any password)</span>
               </div>
               <div className="relative">
                 <input
@@ -253,18 +253,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             </div>
 
-            <label className="flex items-center gap-2 pt-1 cursor-pointer select-none">
+            <div className="space-y-1 pt-0.5">
+              <label className="text-slate-300 font-medium flex items-center justify-between">
+                <span>Referrer Code (Optional)</span>
+                <span className="text-[10px] text-emerald-400 font-mono">10% commission</span>
+              </label>
               <input
-                type="checkbox"
-                checked={makeAdmin}
-                onChange={(e) => setMakeAdmin(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 bg-slate-800"
+                type="text"
+                placeholder="e.g. CryptoSeeker"
+                value={referrerCode}
+                onChange={(e) => setReferrerCode(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
               />
-              <div className="flex items-center gap-1.5 text-slate-300">
-                <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Grant Administrator Privileges</span>
-              </div>
-            </label>
+            </div>
 
             <div className="p-2.5 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-400">
               <span className="text-emerald-400 font-mono">handle_new_user()</span> trigger will automatically create balance rows for BTC, LTC, DOGE, and USDT.
@@ -290,26 +291,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => handleQuickDemoLogin('user')}
-              className="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 text-slate-300 text-left transition-colors flex items-center justify-between text-xs"
+              onClick={() => handleQuickDemoLogin('seeker')}
+              className="py-1.5 px-2.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 text-slate-300 text-left transition-colors flex items-center justify-between text-xs cursor-pointer"
             >
               <div className="truncate">
                 <span className="font-semibold text-white block truncate">CryptoSeeker</span>
-                <span className="text-[10px] text-slate-500 block">Regular User</span>
+                <span className="text-[10px] text-slate-500 block">Referrer Account</span>
               </div>
-              <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0 ml-1" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />
             </button>
 
             <button
               type="button"
-              onClick={() => handleQuickDemoLogin('admin')}
-              className="py-1.5 px-2 rounded-lg border border-emerald-800/60 bg-emerald-950/20 hover:bg-emerald-950/40 text-slate-300 text-left transition-colors flex items-center justify-between text-xs"
+              onClick={() => handleQuickDemoLogin('satoshifan')}
+              className="py-1.5 px-2.5 rounded-lg border border-emerald-800/60 bg-emerald-950/20 hover:bg-emerald-950/40 text-slate-300 text-left transition-colors flex items-center justify-between text-xs cursor-pointer"
             >
               <div className="truncate">
-                <span className="font-semibold text-emerald-300 block truncate">FaucetAdmin</span>
-                <span className="text-[10px] text-emerald-400/70 block">Full Admin</span>
+                <span className="font-semibold text-emerald-300 block truncate">SatoshiFan21</span>
+                <span className="text-[10px] text-emerald-400/70 block">Referee Account</span>
               </div>
-              <Sparkles className="w-3 h-3 text-emerald-400 shrink-0 ml-1" />
+              <Users className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />
             </button>
           </div>
         </div>

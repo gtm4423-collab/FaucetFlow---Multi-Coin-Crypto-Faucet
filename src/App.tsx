@@ -1,5 +1,5 @@
 /**
- * FaucetFlow - Multi-Coin Crypto Faucet & Security Hub
+ * FaucetFlow - Multi-Coin Crypto Faucet & User Dashboard
  * Grounded in faucetflow_supabase_all_58fd9fca.sql
  */
 
@@ -9,14 +9,14 @@ import { COIN_CONFIGS } from './data/coins';
 import { faucetDb } from './lib/faucetStore';
 import { Header } from './components/Header';
 import { FaucetSection } from './components/FaucetSection';
+import { OfferwallsSection } from './components/OfferwallsSection';
+import { ReferralSection } from './components/ReferralSection';
 import { LedgerSection } from './components/LedgerSection';
 import { WithdrawSection } from './components/WithdrawSection';
-import { AdminSection } from './components/AdminSection';
 import { SqlSchemaSection } from './components/SqlSchemaSection';
-import { CreateUserModal } from './components/CreateUserModal';
 import { AuthModal } from './components/AuthModal';
 import { SupabaseConnectModal } from './components/SupabaseConnectModal';
-import { Droplets, ShieldCheck, Database } from 'lucide-react';
+import { Droplets, ShieldCheck, Database, Download } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('faucet');
@@ -24,8 +24,6 @@ export default function App() {
   const [allUsers, setAllUsers] = useState(faucetDb.getAllUsers());
   const [balances, setBalances] = useState(faucetDb.getUserBalances());
   const [claims, setClaims] = useState(faucetDb.getClaims());
-  const [stats, setStats] = useState(faucetDb.getStats());
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
@@ -37,7 +35,6 @@ export default function App() {
     setAllUsers(faucetDb.getAllUsers());
     setBalances(faucetDb.getUserBalances(user?.id));
     setClaims(faucetDb.getClaims());
-    setStats(faucetDb.getStats());
   }, []);
 
   useEffect(() => {
@@ -63,13 +60,6 @@ export default function App() {
   const handleSignOut = () => {
     faucetDb.signOut();
     syncStore();
-  };
-
-  const handlePromoteCurrentToAdmin = () => {
-    if (currentUser) {
-      faucetDb.toggleRole(currentUser.id);
-      syncStore();
-    }
   };
 
   const handleResetData = () => {
@@ -114,11 +104,18 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'ledger' && (
-          <LedgerSection
-            claims={claims}
+        {activeTab === 'offerwalls' && (
+          <OfferwallsSection
             currentUser={currentUser}
-            onNavigateFaucet={() => setActiveTab('faucet')}
+            onRewardClaimed={syncStore}
+            onOpenSignIn={handleOpenSignIn}
+          />
+        )}
+
+        {activeTab === 'referral' && (
+          <ReferralSection
+            currentUser={currentUser}
+            onOpenSignIn={handleOpenSignIn}
           />
         )}
 
@@ -130,12 +127,11 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'admin' && (
-          <AdminSection
+        {activeTab === 'ledger' && (
+          <LedgerSection
+            claims={claims}
             currentUser={currentUser}
-            stats={stats}
-            onRefresh={syncStore}
-            onPromoteMe={handlePromoteCurrentToAdmin}
+            onNavigateFaucet={() => setActiveTab('faucet')}
           />
         )}
 
@@ -154,24 +150,26 @@ export default function App() {
             <span>Supabase PostgreSQL Edition</span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-400">
-            <span className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-3 text-slate-400">
+            <a
+              href="/faucetflow-source-code.zip"
+              download="faucetflow-source-code.zip"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold transition-colors"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Download ZIP (All Files)</span>
+            </a>
+            <span className="hidden sm:inline">·</span>
+            <span className="hidden sm:flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> RLS Enforced
             </span>
-            <span>·</span>
-            <span className="flex items-center gap-1">
+            <span className="hidden sm:inline">·</span>
+            <span className="hidden sm:flex items-center gap-1">
               <Database className="w-3.5 h-3.5 text-cyan-400" /> 60s Transaction Cooldown
             </span>
           </div>
         </div>
       </footer>
-
-      {/* Create User Modal */}
-      <CreateUserModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onUserCreated={syncStore}
-      />
 
       {/* Sign In & Sign Up Authentication Modal */}
       <AuthModal

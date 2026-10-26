@@ -25,8 +25,9 @@ export interface UserProfile {
   id: string; // uuid
   email: string;
   username: string;
+  referrer_id?: string | null;
   created_at: string;
-  role: 'user' | 'admin';
+  role: 'user';
 }
 
 export interface UserBalance {
@@ -46,13 +47,27 @@ export interface ClaimRecord {
   tx_hash?: string;
 }
 
-export interface AdminActivityLog {
-  id: number;
-  actor_user_id: string;
-  actor_email: string;
-  action: 'dashboard_view' | 'users_view' | 'claims_view' | 'activity_logs_view' | 'data_refresh';
-  details: Record<string, unknown>;
-  created_at: string;
+export interface ReferralClaimRecord {
+  id: string;
+  referrer_id: string;
+  referee_id: string;
+  referee_username?: string;
+  coin: CoinType;
+  amount: number;
+  claimed_at: string;
+}
+
+export interface OfferwallTask {
+  id: string;
+  offerwall: 'timewall' | 'monlix';
+  title: string;
+  description: string;
+  category: 'Survey' | 'App Install' | 'Game Quest' | 'Micro Task';
+  rewardCoin: CoinType;
+  rewardAmount: number;
+  estMinutes: number;
+  partnerName: string;
+  difficulty: 'Easy' | 'Medium' | 'High';
 }
 
 export interface FaucetStats {
@@ -63,4 +78,5 @@ export interface FaucetStats {
   claimsLast24h: number;
 }
 
-export type ActiveTab = 'faucet' | 'ledger' | 'withdraw' | 'admin' | 'sql-architecture';
+export type ActiveTab = 'faucet' | 'offerwalls' | 'referral' | 'withdraw' | 'ledger' | 'sql-architecture';
+

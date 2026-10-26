@@ -137,28 +137,29 @@ export const SqlSchemaSection: React.FC<SqlSchemaSectionProps> = ({ onOpenSupaba
             </div>
 
             {/* Box 3: Admin Role & RBAC */}
+            {/* Box 3: 10% Referral Bonus Engine */}
             <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/40 space-y-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
                 <Server className="w-4 h-4 text-rose-400" />
-                <span>3. Admin Controls & Activity Auditing</span>
+                <span>3. 10% Referral Engine (public.referral_claims)</span>
               </div>
               <ul className="space-y-2 text-xs text-slate-300">
                 <li className="p-2.5 rounded bg-slate-950/80 border border-slate-800/80">
-                  <div className="font-mono text-rose-400 font-semibold">public.admin_roles & is_admin()</div>
+                  <div className="font-mono text-rose-400 font-semibold">public.profiles (referrer_id)</div>
                   <div className="text-slate-400 text-[11px] mt-0.5">
-                    Restricts elevated endpoints to authorized admins. Replaces owner-only policies with owner OR admin.
+                    Attribution link pointing to the referring user (<code>references auth.users(id)</code>).
                   </div>
                 </li>
                 <li className="p-2.5 rounded bg-slate-950/80 border border-slate-800/80">
-                  <div className="font-mono text-cyan-400 font-semibold">admin_list_users()</div>
+                  <div className="font-mono text-cyan-400 font-semibold">public.referral_claims</div>
                   <div className="text-slate-400 text-[11px] mt-0.5">
-                    Safely joins <code>auth.users</code> with profiles after checking caller's admin privileges.
+                    Append-only ledger logging every 10% commission payout from referee claims.
                   </div>
                 </li>
                 <li className="p-2.5 rounded bg-slate-950/80 border border-slate-800/80">
-                  <div className="font-mono text-emerald-400 font-semibold">admin_activity_logs</div>
+                  <div className="font-mono text-emerald-400 font-semibold">Atomic 10% Commission Calculation</div>
                   <div className="text-slate-400 text-[11px] mt-0.5">
-                    Audit trail logging admin operations with structured JSON payloads.
+                    Inside <code>claim_reward()</code>: <code>ref_bonus := round(reward * 0.10, 12);</code> credited directly to referrer.
                   </div>
                 </li>
               </ul>
@@ -171,16 +172,16 @@ export const SqlSchemaSection: React.FC<SqlSchemaSectionProps> = ({ onOpenSupaba
               </div>
               <div className="text-xs text-slate-300 space-y-2 leading-relaxed">
                 <p>
-                  This application is a production-grade <strong>Multi-Coin Crypto Faucet & Security Hub</strong> grounded in your Supabase PostgreSQL schema.
+                  This application is a production-grade <strong>Multi-Coin Crypto Faucet & User Earnings Dashboard</strong> grounded in your Supabase PostgreSQL schema.
                 </p>
                 <p>
-                  <strong>1. User Experience:</strong> Authenticated users select from <strong>BTC, LTC, DOGE, or USDT</strong> and claim automated micro-rewards every 60 seconds.
+                  <strong>1. Faucet Claims:</strong> Users claim automated micro-rewards every 60 seconds with PostgreSQL row-level locks preventing double claims.
                 </p>
                 <p>
-                  <strong>2. Concurrency & Security:</strong> Front-end balance manipulation is prevented by PostgreSQL Row Level Security (RLS). Claims are serialized through <code>pg_advisory_xact_lock()</code> to stop double-claim race conditions.
+                  <strong>2. 2 Integrated Offerwalls:</strong> Users complete high-yield surveys, game tests, and app tasks via <strong>Timewall</strong> and <strong>Monlix</strong> with instant wallet crediting.
                 </p>
                 <p>
-                  <strong>3. Admin Control:</strong> Role-based access (<code>is_admin()</code>) allows platform owners to view all user balances, audit claims in real-time, refill hot wallet reserves, and review activity logs.
+                  <strong>3. 10% Referral Earnings:</strong> Invite friends using personal referral links to earn an automatic 10% commission on every faucet claim they make for life!
                 </p>
               </div>
             </div>
@@ -202,12 +203,12 @@ export const SqlSchemaSection: React.FC<SqlSchemaSectionProps> = ({ onOpenSupaba
             </li>
 
             <li className="p-4 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
-              <span className="font-bold text-white">Step 2: Assign Yourself as an Admin</span>
+              <span className="font-bold text-white">Step 2: 10% Referral Engine & Advisory Locks</span>
               <p className="text-slate-400 leading-relaxed">
-                Go to <strong>Authentication &gt; Users</strong> in Supabase, copy your User UUID, and execute this query:
+                The schema includes <code className="text-emerald-400">public.claim_reward(p_coin)</code> which automatically credits a 10% referral commission to <code className="text-emerald-400">referrer_id</code> in <code className="text-emerald-400">public.referral_claims</code>, protected by a 60-second PostgreSQL transaction advisory lock.
               </p>
-              <div className="bg-slate-900 p-2.5 rounded font-mono text-emerald-300 border border-slate-800">
-                insert into public.admin_roles (user_id) values ('your-supabase-user-uuid-here');
+              <div className="bg-slate-900 p-2.5 rounded font-mono text-emerald-300 border border-slate-800 text-[11px]">
+                select public.claim_reward('USDT'); -- Pays 0.00010000 USDT to claimant &amp; 0.00001000 USDT to referrer
               </div>
             </li>
 

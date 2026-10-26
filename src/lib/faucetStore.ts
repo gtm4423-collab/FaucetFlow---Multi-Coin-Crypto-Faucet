@@ -1,21 +1,23 @@
 import {
-  AdminActivityLog,
   ClaimRecord,
   CoinType,
   FaucetStats,
+  OfferwallTask,
+  ReferralClaimRecord,
   UserBalance,
   UserProfile,
 } from '../types';
-import { COIN_CONFIGS } from '../data/coins';
+import { COIN_CONFIGS, OFFERWALL_TASKS } from '../data/coins';
 
 const STORAGE_KEYS = {
-  USERS: 'faucetflow_users_v1',
-  CURRENT_USER_ID: 'faucetflow_current_user_id_v1',
-  BALANCES: 'faucetflow_balances_v1',
-  CLAIMS: 'faucetflow_claims_v1',
-  LOGS: 'faucetflow_admin_logs_v1',
-  STATS: 'faucetflow_stats_v1',
-  COOLDOWNS: 'faucetflow_cooldowns_v1',
+  USERS: 'faucetflow_users_v2',
+  CURRENT_USER_ID: 'faucetflow_current_user_id_v2',
+  BALANCES: 'faucetflow_balances_v2',
+  CLAIMS: 'faucetflow_claims_v2',
+  REFERRAL_CLAIMS: 'faucetflow_ref_claims_v2',
+  STATS: 'faucetflow_stats_v2',
+  COOLDOWNS: 'faucetflow_cooldowns_v2',
+  COMPLETED_TASKS: 'faucetflow_completed_tasks_v2',
 };
 
 // Seed users
@@ -24,41 +26,44 @@ const INITIAL_USERS: UserProfile[] = [
     id: 'usr-492a-seeker',
     email: 'seeker@crypto.io',
     username: 'CryptoSeeker',
+    referrer_id: null,
     created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
     role: 'user',
-  },
-  {
-    id: 'adm-01ff-master',
-    email: 'admin@faucetflow.io',
-    username: 'FaucetAdmin',
-    created_at: new Date(Date.now() - 86400000 * 14).toISOString(),
-    role: 'admin',
   },
   {
     id: 'usr-923c-satoshifan',
     email: 'satoshifan@web3.org',
     username: 'SatoshiFan21',
+    referrer_id: 'usr-492a-seeker', // Referred by CryptoSeeker to showcase 10% referral bonus!
     created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    role: 'user',
+  },
+  {
+    id: 'usr-381x-bitcoiner',
+    email: 'bitcoiner@gmail.com',
+    username: 'BitCoiner99',
+    referrer_id: 'usr-492a-seeker', // Also referred by CryptoSeeker
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     role: 'user',
   },
 ];
 
 const INITIAL_BALANCES: UserBalance[] = [
   // CryptoSeeker
-  { user_id: 'usr-492a-seeker', coin: 'BTC', amount: 0.00000018, updated_at: new Date(Date.now() - 3600000).toISOString() },
-  { user_id: 'usr-492a-seeker', coin: 'LTC', amount: 0.00001400, updated_at: new Date(Date.now() - 3600000).toISOString() },
-  { user_id: 'usr-492a-seeker', coin: 'DOGE', amount: 0.00018000, updated_at: new Date(Date.now() - 3600000).toISOString() },
-  { user_id: 'usr-492a-seeker', coin: 'USDT', amount: 0.00150000, updated_at: new Date(Date.now() - 3600000).toISOString() },
-  // FaucetAdmin
-  { user_id: 'adm-01ff-master', coin: 'BTC', amount: 0.00005000, updated_at: new Date(Date.now() - 7200000).toISOString() },
-  { user_id: 'adm-01ff-master', coin: 'LTC', amount: 0.00500000, updated_at: new Date(Date.now() - 7200000).toISOString() },
-  { user_id: 'adm-01ff-master', coin: 'DOGE', amount: 25.0000000, updated_at: new Date(Date.now() - 7200000).toISOString() },
-  { user_id: 'adm-01ff-master', coin: 'USDT', amount: 15.5000000, updated_at: new Date(Date.now() - 7200000).toISOString() },
+  { user_id: 'usr-492a-seeker', coin: 'BTC', amount: 0.00000028, updated_at: new Date(Date.now() - 3600000).toISOString() },
+  { user_id: 'usr-492a-seeker', coin: 'LTC', amount: 0.00002800, updated_at: new Date(Date.now() - 3600000).toISOString() },
+  { user_id: 'usr-492a-seeker', coin: 'DOGE', amount: 0.00028000, updated_at: new Date(Date.now() - 3600000).toISOString() },
+  { user_id: 'usr-492a-seeker', coin: 'USDT', amount: 0.00350000, updated_at: new Date(Date.now() - 3600000).toISOString() },
   // SatoshiFan21
-  { user_id: 'usr-923c-satoshifan', coin: 'BTC', amount: 0.00000005, updated_at: new Date(Date.now() - 1800000).toISOString() },
-  { user_id: 'usr-923c-satoshifan', coin: 'LTC', amount: 0.00000400, updated_at: new Date(Date.now() - 1800000).toISOString() },
-  { user_id: 'usr-923c-satoshifan', coin: 'DOGE', amount: 0.00004000, updated_at: new Date(Date.now() - 1800000).toISOString() },
-  { user_id: 'usr-923c-satoshifan', coin: 'USDT', amount: 0.00040000, updated_at: new Date(Date.now() - 1800000).toISOString() },
+  { user_id: 'usr-923c-satoshifan', coin: 'BTC', amount: 0.00000008, updated_at: new Date(Date.now() - 1800000).toISOString() },
+  { user_id: 'usr-923c-satoshifan', coin: 'LTC', amount: 0.00000800, updated_at: new Date(Date.now() - 1800000).toISOString() },
+  { user_id: 'usr-923c-satoshifan', coin: 'DOGE', amount: 0.00008000, updated_at: new Date(Date.now() - 1800000).toISOString() },
+  { user_id: 'usr-923c-satoshifan', coin: 'USDT', amount: 0.00080000, updated_at: new Date(Date.now() - 1800000).toISOString() },
+  // BitCoiner99
+  { user_id: 'usr-381x-bitcoiner', coin: 'BTC', amount: 0.00000010, updated_at: new Date(Date.now() - 5400000).toISOString() },
+  { user_id: 'usr-381x-bitcoiner', coin: 'LTC', amount: 0.00001000, updated_at: new Date(Date.now() - 5400000).toISOString() },
+  { user_id: 'usr-381x-bitcoiner', coin: 'DOGE', amount: 0.00010000, updated_at: new Date(Date.now() - 5400000).toISOString() },
+  { user_id: 'usr-381x-bitcoiner', coin: 'USDT', amount: 0.00100000, updated_at: new Date(Date.now() - 5400000).toISOString() },
 ];
 
 const INITIAL_CLAIMS: ClaimRecord[] = [
@@ -78,49 +83,42 @@ const INITIAL_CLAIMS: ClaimRecord[] = [
     coin: 'DOGE',
     amount: 0.00001000,
     claimed_at: new Date(Date.now() - 180000).toISOString(),
-    tx_hash: '0x3e1d...910a',
+    tx_hash: '0x4e19...a02f',
   },
   {
-    id: 'clm-921a-usdt-03',
+    id: 'clm-8472-usdt-03',
     user_id: 'usr-923c-satoshifan',
     username: 'SatoshiFan21',
     coin: 'USDT',
     amount: 0.00010000,
-    claimed_at: new Date(Date.now() - 300000).toISOString(),
-    tx_hash: '0x712a...f4bc',
-  },
-  {
-    id: 'clm-771c-ltc-04',
-    user_id: 'adm-01ff-master',
-    username: 'FaucetAdmin',
-    coin: 'LTC',
-    amount: 0.00000100,
-    claimed_at: new Date(Date.now() - 420000).toISOString(),
-    tx_hash: '0x192e...44d1',
+    claimed_at: new Date(Date.now() - 240000).toISOString(),
+    tx_hash: '0x9d11...bb52',
   },
 ];
 
-const INITIAL_LOGS: AdminActivityLog[] = [
+const INITIAL_REFERRAL_CLAIMS: ReferralClaimRecord[] = [
   {
-    id: 1,
-    actor_user_id: 'adm-01ff-master',
-    actor_email: 'admin@faucetflow.io',
-    action: 'dashboard_view',
-    details: { ip: '192.168.1.1', client: 'FaucetFlow Web Console' },
-    created_at: new Date(Date.now() - 3600000).toISOString(),
+    id: 'ref-clm-001',
+    referrer_id: 'usr-492a-seeker',
+    referee_id: 'usr-923c-satoshifan',
+    referee_username: 'SatoshiFan21',
+    coin: 'USDT',
+    amount: 0.00001000, // 10% of 0.00010000
+    claimed_at: new Date(Date.now() - 240000).toISOString(),
   },
   {
-    id: 2,
-    actor_user_id: 'adm-01ff-master',
-    actor_email: 'admin@faucetflow.io',
-    action: 'data_refresh',
-    details: { sync: 'full_ledger_refresh', status: 'ok' },
-    created_at: new Date(Date.now() - 1800000).toISOString(),
+    id: 'ref-clm-002',
+    referrer_id: 'usr-492a-seeker',
+    referee_id: 'usr-381x-bitcoiner',
+    referee_username: 'BitCoiner99',
+    coin: 'BTC',
+    amount: 0.000000001, // 10% of 0.00000001
+    claimed_at: new Date(Date.now() - 600000).toISOString(),
   },
 ];
 
 const INITIAL_STATS: FaucetStats = {
-  totalClaimsCount: 1420,
+  totalClaimsCount: 1428,
   totalDispensed: {
     BTC: 0.00014200,
     LTC: 0.01420000,
@@ -133,11 +131,10 @@ const INITIAL_STATS: FaucetStats = {
     DOGE: 10000.000000,
     USDT: 2500.000000,
   },
-  activeUsersCount: 384,
-  claimsLast24h: 312,
+  activeUsersCount: 421,
+  claimsLast24h: 365,
 };
 
-// Safe JSON loader
 function loadStorage<T>(key: string, defaultValue: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -161,10 +158,10 @@ export class FaucetDatabase {
   private currentUserId: string;
   private balances: UserBalance[];
   private claims: ClaimRecord[];
-  private logs: AdminActivityLog[];
+  private referralClaims: ReferralClaimRecord[];
   private stats: FaucetStats;
-  // Key format: `${userId}:${coin}` -> timestamp (ms)
   private cooldowns: Record<string, number>;
+  private completedTaskIds: string[];
   private listeners: Set<() => void> = new Set();
 
   constructor() {
@@ -172,9 +169,10 @@ export class FaucetDatabase {
     this.currentUserId = loadStorage(STORAGE_KEYS.CURRENT_USER_ID, 'usr-492a-seeker');
     this.balances = loadStorage(STORAGE_KEYS.BALANCES, INITIAL_BALANCES);
     this.claims = loadStorage(STORAGE_KEYS.CLAIMS, INITIAL_CLAIMS);
-    this.logs = loadStorage(STORAGE_KEYS.LOGS, INITIAL_LOGS);
+    this.referralClaims = loadStorage(STORAGE_KEYS.REFERRAL_CLAIMS, INITIAL_REFERRAL_CLAIMS);
     this.stats = loadStorage(STORAGE_KEYS.STATS, INITIAL_STATS);
     this.cooldowns = loadStorage(STORAGE_KEYS.COOLDOWNS, {});
+    this.completedTaskIds = loadStorage(STORAGE_KEYS.COMPLETED_TASKS, []);
   }
 
   public subscribe(listener: () => void): () => void {
@@ -187,9 +185,10 @@ export class FaucetDatabase {
     saveStorage(STORAGE_KEYS.CURRENT_USER_ID, this.currentUserId);
     saveStorage(STORAGE_KEYS.BALANCES, this.balances);
     saveStorage(STORAGE_KEYS.CLAIMS, this.claims);
-    saveStorage(STORAGE_KEYS.LOGS, this.logs);
+    saveStorage(STORAGE_KEYS.REFERRAL_CLAIMS, this.referralClaims);
     saveStorage(STORAGE_KEYS.STATS, this.stats);
     saveStorage(STORAGE_KEYS.COOLDOWNS, this.cooldowns);
+    saveStorage(STORAGE_KEYS.COMPLETED_TASKS, this.completedTaskIds);
     this.listeners.forEach((fn) => fn());
   }
 
@@ -209,13 +208,25 @@ export class FaucetDatabase {
     }
   }
 
-  public createUser(username: string, email: string, makeAdmin = false): UserProfile {
+  public createUser(username: string, email: string, referrerId?: string | null): UserProfile {
+    // If referrerId is provided as a username, find user id
+    let resolvedRefId: string | null = null;
+    if (referrerId) {
+      const match = this.users.find(
+        (u) => u.id === referrerId || u.username.toLowerCase() === referrerId.toLowerCase()
+      );
+      if (match) {
+        resolvedRefId = match.id;
+      }
+    }
+
     const newUser: UserProfile = {
       id: `usr-${Math.random().toString(36).substring(2, 8)}`,
       username: username.trim(),
       email: email.trim(),
+      referrer_id: resolvedRefId,
       created_at: new Date().toISOString(),
-      role: makeAdmin ? 'admin' : 'user',
+      role: 'user',
     };
     this.users.unshift(newUser);
 
@@ -254,7 +265,7 @@ export class FaucetDatabase {
     this.notify();
   }
 
-  public signUp(username: string, email: string, makeAdmin = false): UserProfile {
+  public signUp(username: string, email: string, referrerId?: string | null): UserProfile {
     const existing = this.users.find(
       (u) =>
         u.email.toLowerCase() === email.trim().toLowerCase() ||
@@ -263,82 +274,72 @@ export class FaucetDatabase {
     if (existing) {
       throw new Error('A user with that email or username already exists.');
     }
-    return this.createUser(username, email, makeAdmin);
-  }
-
-  public toggleRole(userId: string): void {
-    const target = this.users.find((u) => u.id === userId);
-    if (target) {
-      target.role = target.role === 'admin' ? 'user' : 'admin';
-      this.notify();
-    }
+    return this.createUser(username, email, referrerId);
   }
 
   public getUserBalances(userId?: string): Record<CoinType, number> {
-    const uid = userId || this.currentUserId;
+    const targetId = userId || this.currentUserId;
     const result: Record<CoinType, number> = {
       BTC: 0,
       LTC: 0,
       DOGE: 0,
       USDT: 0,
     };
+
+    if (!targetId) return result;
+
     this.balances
-      .filter((b) => b.user_id === uid)
+      .filter((b) => b.user_id === targetId)
       .forEach((b) => {
         result[b.coin] = b.amount;
       });
+
     return result;
   }
 
   public getRemainingCooldown(coin: CoinType, userId?: string): number {
-    const uid = userId || this.currentUserId;
-    const key = `${uid}:${coin}`;
-    const lastClaimMs = this.cooldowns[key];
-    if (!lastClaimMs) return 0;
-    const elapsed = Date.now() - lastClaimMs;
-    const cooldownMs = COIN_CONFIGS[coin].cooldownSeconds * 1000;
-    if (elapsed >= cooldownMs) return 0;
-    return Math.ceil((cooldownMs - elapsed) / 1000);
+    const targetId = userId || this.currentUserId;
+    if (!targetId) return 0;
+    const key = `${targetId}:${coin}`;
+    const last = this.cooldowns[key] || 0;
+    const elapsed = Math.floor((Date.now() - last) / 1000);
+    const config = COIN_CONFIGS[coin];
+    const rem = config.cooldownSeconds - elapsed;
+    return rem > 0 ? rem : 0;
   }
 
   /**
-   * Replicates PostgreSQL public.claim_reward(p_coin text)
-   * 1. Check user authentication
-   * 2. Check coin validity
-   * 3. Simulate advisory lock (serialize access)
-   * 4. Enforce 60-second cooldown
-   * 5. Credit user balance & create claim log
+   * Mirrors public.claim_reward(p_coin text) RPC
+   * Includes 60s cooldown, advisory lock simulation, and 10% referral bonus payout
    */
   public async claimReward(coin: CoinType): Promise<{
     coin: CoinType;
     amount: number;
     claimed_at: string;
     tx_hash: string;
+    referralBonusCredited?: { referrerUsername: string; amount: number };
   }> {
     const user = this.getCurrentUser();
     if (!user) {
       throw new Error('Please sign in before claiming.');
     }
-    if (!['BTC', 'LTC', 'DOGE', 'USDT'].includes(coin)) {
-      throw new Error('Unsupported coin.');
-    }
 
     const remaining = this.getRemainingCooldown(coin, user.id);
     if (remaining > 0) {
-      throw new Error(`Please wait ${remaining}s before making another claim for ${coin}.`);
+      throw new Error(`Cooldown active. Please wait ${remaining}s before claiming ${coin}.`);
     }
 
     const config = COIN_CONFIGS[coin];
     const reward = config.rewardAmount;
 
-    // Simulate advisory lock latency (120ms)
-    await new Promise((res) => setTimeout(res, 120));
+    // Simulate advisory lock latency (100ms)
+    await new Promise((res) => setTimeout(res, 100));
 
     const nowIso = new Date().toISOString();
     const key = `${user.id}:${coin}`;
     this.cooldowns[key] = Date.now();
 
-    // Update balances
+    // 1. Payout reward to claimant
     const balanceEntry = this.balances.find((b) => b.user_id === user.id && b.coin === coin);
     if (balanceEntry) {
       balanceEntry.amount = Number((balanceEntry.amount + reward).toFixed(12));
@@ -366,11 +367,48 @@ export class FaucetDatabase {
     };
     this.claims.unshift(claimRecord);
 
-    // Update stats & reserves
+    // 2. 10% Referral Commission Payout to Referrer (matches SQL)
+    let referralBonusCredited: { referrerUsername: string; amount: number } | undefined;
+    if (user.referrer_id && user.referrer_id !== user.id) {
+      const referrer = this.users.find((u) => u.id === user.referrer_id);
+      if (referrer) {
+        const refBonus = Number((reward * 0.10).toFixed(12));
+        if (refBonus > 0) {
+          const refBalance = this.balances.find((b) => b.user_id === referrer.id && b.coin === coin);
+          if (refBalance) {
+            refBalance.amount = Number((refBalance.amount + refBonus).toFixed(12));
+            refBalance.updated_at = nowIso;
+          } else {
+            this.balances.push({
+              user_id: referrer.id,
+              coin,
+              amount: refBonus,
+              updated_at: nowIso,
+            });
+          }
+
+          this.referralClaims.unshift({
+            id: `ref-clm-${Math.random().toString(36).substring(2, 9)}`,
+            referrer_id: referrer.id,
+            referee_id: user.id,
+            referee_username: user.username,
+            coin,
+            amount: refBonus,
+            claimed_at: nowIso,
+          });
+
+          referralBonusCredited = {
+            referrerUsername: referrer.username,
+            amount: refBonus,
+          };
+        }
+      }
+    }
+
+    // Update stats
     this.stats.totalClaimsCount += 1;
     this.stats.claimsLast24h += 1;
     this.stats.totalDispensed[coin] = Number((this.stats.totalDispensed[coin] + reward).toFixed(12));
-    this.stats.faucetReserves[coin] = Math.max(0, Number((this.stats.faucetReserves[coin] - reward).toFixed(12)));
 
     this.notify();
 
@@ -379,7 +417,74 @@ export class FaucetDatabase {
       amount: reward,
       claimed_at: nowIso,
       tx_hash: txHash,
+      referralBonusCredited,
     };
+  }
+
+  /**
+   * Completes an Offerwall Task (Timewall or Monlix) and credits reward to user wallet
+   */
+  public async completeOfferwallTask(taskId: string): Promise<{
+    task: OfferwallTask;
+    creditedAmount: number;
+    coin: CoinType;
+  }> {
+    const user = this.getCurrentUser();
+    if (!user) {
+      throw new Error('Please sign in to complete offerwall tasks and receive rewards.');
+    }
+
+    const task = OFFERWALL_TASKS.find((t) => t.id === taskId);
+    if (!task) {
+      throw new Error('Offerwall task not found.');
+    }
+
+    // Simulate task verification latency
+    await new Promise((res) => setTimeout(res, 600));
+
+    const nowIso = new Date().toISOString();
+
+    // Credit user balance
+    const balanceEntry = this.balances.find((b) => b.user_id === user.id && b.coin === task.rewardCoin);
+    if (balanceEntry) {
+      balanceEntry.amount = Number((balanceEntry.amount + task.rewardAmount).toFixed(12));
+      balanceEntry.updated_at = nowIso;
+    } else {
+      this.balances.push({
+        user_id: user.id,
+        coin: task.rewardCoin,
+        amount: task.rewardAmount,
+        updated_at: nowIso,
+      });
+    }
+
+    // Log to ledger
+    this.claims.unshift({
+      id: `task-${Math.random().toString(36).substring(2, 9)}`,
+      user_id: user.id,
+      username: user.username,
+      coin: task.rewardCoin,
+      amount: task.rewardAmount,
+      claimed_at: nowIso,
+      tx_hash: `${task.offerwall.toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+    });
+
+    if (!this.completedTaskIds.includes(taskId)) {
+      this.completedTaskIds.push(taskId);
+    }
+
+    this.stats.totalClaimsCount += 1;
+    this.notify();
+
+    return {
+      task,
+      creditedAmount: task.rewardAmount,
+      coin: task.rewardCoin,
+    };
+  }
+
+  public isTaskCompleted(taskId: string): boolean {
+    return this.completedTaskIds.includes(taskId);
   }
 
   public getClaims(userId?: string): ClaimRecord[] {
@@ -389,74 +494,20 @@ export class FaucetDatabase {
     return [...this.claims];
   }
 
-  // Admin APIs mirroring SQL security definer RPCs
-  public isAdmin(): boolean {
-    const user = this.getCurrentUser();
-    return user ? user.role === 'admin' : false;
+  public getReferralClaims(userId?: string): ReferralClaimRecord[] {
+    const targetId = userId || this.currentUserId;
+    if (!targetId) return [];
+    return this.referralClaims.filter((r) => r.referrer_id === targetId);
   }
 
-  public adminListUsers(): Array<UserProfile & { balances: Record<CoinType, number>; totalClaims: number }> {
-    if (!this.isAdmin()) {
-      throw new Error('Administrator access required [SQL 42501]');
-    }
-
-    return this.users.map((u) => {
-      const balances = this.getUserBalances(u.id);
-      const totalClaims = this.claims.filter((c) => c.user_id === u.id).length;
-      return {
-        ...u,
-        balances,
-        totalClaims,
-      };
-    });
-  }
-
-  public adminLogActivity(
-    action: 'dashboard_view' | 'users_view' | 'claims_view' | 'activity_logs_view' | 'data_refresh',
-    details: Record<string, unknown> = {}
-  ): void {
-    const user = this.getCurrentUser();
-    if (!user || user.role !== 'admin') {
-      return; // SQL throws 42501
-    }
-
-    const log: AdminActivityLog = {
-      id: this.logs.length + 1,
-      actor_user_id: user.id,
-      actor_email: user.email,
-      action,
-      details,
-      created_at: new Date().toISOString(),
-    };
-    this.logs.unshift(log);
-    if (this.logs.length > 200) {
-      this.logs.pop();
-    }
-    this.notify();
-  }
-
-  public adminListActivityLogs(): AdminActivityLog[] {
-    if (!this.isAdmin()) {
-      throw new Error('Administrator access required [SQL 42501]');
-    }
-    return [...this.logs];
+  public getReferees(userId?: string): UserProfile[] {
+    const targetId = userId || this.currentUserId;
+    if (!targetId) return [];
+    return this.users.filter((u) => u.referrer_id === targetId);
   }
 
   public getStats(): FaucetStats {
     return { ...this.stats };
-  }
-
-  public refillReserve(coin: CoinType, amount: number): void {
-    if (!this.isAdmin()) {
-      throw new Error('Administrator access required [SQL 42501]');
-    }
-    this.stats.faucetReserves[coin] = Number((this.stats.faucetReserves[coin] + amount).toFixed(12));
-    this.adminLogActivity('data_refresh', {
-      action: 'vault_refill',
-      coin,
-      amount,
-    });
-    this.notify();
   }
 
   public withdraw(
@@ -503,17 +554,19 @@ export class FaucetDatabase {
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
     localStorage.removeItem(STORAGE_KEYS.BALANCES);
     localStorage.removeItem(STORAGE_KEYS.CLAIMS);
-    localStorage.removeItem(STORAGE_KEYS.LOGS);
+    localStorage.removeItem(STORAGE_KEYS.REFERRAL_CLAIMS);
     localStorage.removeItem(STORAGE_KEYS.STATS);
     localStorage.removeItem(STORAGE_KEYS.COOLDOWNS);
+    localStorage.removeItem(STORAGE_KEYS.COMPLETED_TASKS);
 
     this.users = [...INITIAL_USERS];
     this.currentUserId = 'usr-492a-seeker';
     this.balances = [...INITIAL_BALANCES];
     this.claims = [...INITIAL_CLAIMS];
-    this.logs = [...INITIAL_LOGS];
+    this.referralClaims = [...INITIAL_REFERRAL_CLAIMS];
     this.stats = { ...INITIAL_STATS };
     this.cooldowns = {};
+    this.completedTaskIds = [];
     this.notify();
   }
 }

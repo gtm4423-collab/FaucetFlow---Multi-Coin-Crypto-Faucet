@@ -3,7 +3,6 @@ import { ActiveTab, UserProfile } from '../types';
 import { UI_TEXT } from '../data/translations';
 import {
   Droplets,
-  ShieldCheck,
   User,
   ChevronDown,
   Check,
@@ -12,6 +11,9 @@ import {
   UserPlus,
   LogOut,
   Database,
+  Download,
+  Sparkles,
+  Percent,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -48,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
-          {/* Zone 1: Single text element wordmark */}
+          {/* Zone 1: Brand wordmark */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Droplets className="w-5 h-5" />
@@ -63,54 +65,75 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Zone 2: Clean single-line text navigation links */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-2 text-sm font-medium">
+          {/* Zone 2: Navigation Links (Pure User Dashboard) */}
+          <nav className="hidden md:flex items-center gap-1 sm:gap-1.5 text-xs font-semibold">
             <button
               onClick={() => setActiveTab('faucet')}
-              className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === 'faucet'
-                  ? 'bg-slate-800 text-white font-semibold shadow-sm'
+                  ? 'bg-slate-800 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
               }`}
             >
               {t.tab_faucet}
             </button>
+
+            {/* Offerwalls Tab */}
             <button
-              onClick={() => setActiveTab('ledger')}
-              className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
-                activeTab === 'ledger'
-                  ? 'bg-slate-800 text-white font-semibold shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+              onClick={() => setActiveTab('offerwalls')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                activeTab === 'offerwalls'
+                  ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-emerald-300 hover:bg-slate-900/60'
               }`}
             >
-              {t.tab_ledger}
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{t.tab_offerwalls}</span>
+              <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
+                2 WALLS
+              </span>
             </button>
+
+            {/* 10% Referral Program Tab */}
+            <button
+              onClick={() => setActiveTab('referral')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                activeTab === 'referral'
+                  ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-emerald-300 hover:bg-slate-900/60'
+              }`}
+            >
+              <Percent className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{t.tab_referral}</span>
+            </button>
+
             <button
               onClick={() => setActiveTab('withdraw')}
-              className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === 'withdraw'
-                  ? 'bg-slate-800 text-white font-semibold shadow-sm'
+                  ? 'bg-slate-800 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
               }`}
             >
               {t.tab_withdraw}
             </button>
+
             <button
-              onClick={() => setActiveTab('admin')}
-              className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
-                activeTab === 'admin'
-                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 font-semibold'
+              onClick={() => setActiveTab('ledger')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+                activeTab === 'ledger'
+                  ? 'bg-slate-800 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{t.tab_admin}</span>
+              {t.tab_ledger}
             </button>
+
             <button
               onClick={() => setActiveTab('sql-architecture')}
-              className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === 'sql-architecture'
-                  ? 'bg-slate-800 text-cyan-300 font-semibold'
+                  ? 'bg-slate-800 text-cyan-300'
                   : 'text-slate-400 hover:text-cyan-300 hover:bg-slate-900/60'
               }`}
             >
@@ -118,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Zone 3: Sign In, Sign Up, Account & Language */}
+          {/* Zone 3: Sign In, Sign Up, Account & Supabase */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Total Balance Badge (visible when signed in) */}
             {currentUser && (
@@ -126,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="text-[10px] uppercase text-slate-400 font-medium tracking-wider">
                   {t.total_balance}
                 </span>
-                <span className="text-xs font-semibold text-emerald-400 tabular-nums">
+                <span className="text-xs font-semibold text-emerald-400 tabular-nums font-mono">
                   ${totalUsdValue.toFixed(4)}
                 </span>
               </div>
@@ -162,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </div>
             ) : (
-              /* If Signed In: Show User Profile Dropdown + Quick Sign In/Up options */
+              /* If Signed In: Show User Profile Dropdown */
               <div className="flex items-center gap-1.5">
                 <div className="relative">
                   <button
@@ -173,15 +196,6 @@ export const Header: React.FC<HeaderProps> = ({
                       <User className="w-3 h-3" />
                     </div>
                     <span className="max-w-[90px] sm:max-w-[120px] truncate">{currentUser.username}</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                        currentUser.role === 'admin'
-                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          : 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {currentUser.role === 'admin' ? 'ADMIN' : 'USER'}
-                    </span>
                     <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                   </button>
 
@@ -190,8 +204,9 @@ export const Header: React.FC<HeaderProps> = ({
                       className="absolute right-0 mt-2 w-64 rounded-lg bg-slate-900 border border-slate-800 shadow-xl py-1 text-xs z-50 animate-in fade-in zoom-in-95 duration-100"
                       onClick={() => setUserDropdownOpen(false)}
                     >
-                      <div className="px-3 py-2 border-b border-slate-800 text-slate-400 font-medium">
-                        {t.switch_user}
+                      <div className="px-3 py-2 border-b border-slate-800 text-slate-400 font-medium flex items-center justify-between">
+                        <span>{t.switch_user}</span>
+                        <span className="text-[10px] text-emerald-400 font-mono">1-click switch</span>
                       </div>
 
                       {allUsers.map((u) => (
@@ -206,16 +221,7 @@ export const Header: React.FC<HeaderProps> = ({
                             <span className="truncate">{u.username}</span>
                             <span className="text-[10px] text-slate-400 truncate">{u.email}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span
-                              className={`text-[9px] px-1 rounded uppercase font-mono ${
-                                u.role === 'admin' ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-400'
-                              }`}
-                            >
-                              {u.role}
-                            </span>
-                            {u.id === currentUser.id && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-                          </div>
+                          {u.id === currentUser.id && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                         </button>
                       ))}
 
@@ -241,6 +247,14 @@ export const Header: React.FC<HeaderProps> = ({
                           <LogOut className="w-3 h-3" />
                           <span>Sign Out</span>
                         </button>
+                        <a
+                          href="/faucetflow-source-code.zip"
+                          download="faucetflow-source-code.zip"
+                          className="w-full text-left px-2 py-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800 rounded transition-colors flex items-center gap-1.5"
+                        >
+                          <Download className="w-3 h-3" />
+                          <span>Download Source Code (.ZIP)</span>
+                        </a>
                         <button
                           onClick={onResetData}
                           className="w-full text-left px-2 py-1 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded transition-colors flex items-center gap-1 text-[11px]"
@@ -253,7 +267,7 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 </div>
 
-                {/* Additional quick Sign In / Sign Up buttons for direct access */}
+                {/* Additional quick Sign In / Sign Up buttons */}
                 <button
                   onClick={onOpenSignIn}
                   title="Sign In"
@@ -287,12 +301,20 @@ export const Header: React.FC<HeaderProps> = ({
             {t.tab_faucet}
           </button>
           <button
-            onClick={() => setActiveTab('ledger')}
+            onClick={() => setActiveTab('offerwalls')}
             className={`px-2.5 py-1 rounded whitespace-nowrap ${
-              activeTab === 'ledger' ? 'bg-slate-800 text-white font-semibold' : 'text-slate-400'
+              activeTab === 'offerwalls' ? 'bg-emerald-950 text-emerald-300 font-semibold' : 'text-slate-400'
             }`}
           >
-            {t.tab_ledger}
+            {t.tab_offerwalls}
+          </button>
+          <button
+            onClick={() => setActiveTab('referral')}
+            className={`px-2.5 py-1 rounded whitespace-nowrap ${
+              activeTab === 'referral' ? 'bg-emerald-950 text-emerald-300 font-semibold' : 'text-slate-400'
+            }`}
+          >
+            {t.tab_referral}
           </button>
           <button
             onClick={() => setActiveTab('withdraw')}
@@ -303,12 +325,12 @@ export const Header: React.FC<HeaderProps> = ({
             {t.tab_withdraw}
           </button>
           <button
-            onClick={() => setActiveTab('admin')}
+            onClick={() => setActiveTab('ledger')}
             className={`px-2.5 py-1 rounded whitespace-nowrap ${
-              activeTab === 'admin' ? 'bg-emerald-950 text-emerald-300 font-semibold' : 'text-slate-400'
+              activeTab === 'ledger' ? 'bg-slate-800 text-white font-semibold' : 'text-slate-400'
             }`}
           >
-            {t.tab_admin}
+            {t.tab_ledger}
           </button>
           <button
             onClick={() => setActiveTab('sql-architecture')}
