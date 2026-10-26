@@ -43,7 +43,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     try {
       await new Promise((res) => setTimeout(res, 250));
-      faucetDb.signIn(identifier);
+      faucetDb.signIn(identifier, password);
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -63,12 +63,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setError('Please enter a valid email address.');
       return;
     }
+    if (password && password.length < 4) {
+      setError('Password should be at least 4 characters long.');
+      return;
+    }
     setError(null);
     setIsLoading(true);
 
     try {
       await new Promise((res) => setTimeout(res, 300));
-      faucetDb.signUp(username, email, referrerCode || null);
+      faucetDb.signUp(username, email, password, referrerCode || null);
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -175,10 +179,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <label className="text-slate-300 font-medium">Password</label>
-                <span className="text-[10px] text-slate-500">Demo mode (any password)</span>
-              </div>
+              <label className="text-slate-300 font-medium">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -268,7 +269,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <div className="p-2.5 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-400">
-              <span className="text-emerald-400 font-mono">handle_new_user()</span> trigger will automatically create balance rows for BTC, LTC, DOGE, and USDT.
+              Instant registration initializes multi-coin wallets for BTC, LTC, DOGE, and USDT.
             </div>
 
             <button

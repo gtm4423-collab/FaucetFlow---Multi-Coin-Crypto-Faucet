@@ -10,7 +10,6 @@ import {
   LogIn,
   UserPlus,
   LogOut,
-  Database,
   Download,
   Sparkles,
   Percent,
@@ -26,7 +25,6 @@ interface HeaderProps {
   onOpenSignUp: () => void;
   onSignOut: () => void;
   onResetData: () => void;
-  onOpenSupabaseConnect: () => void;
   totalUsdValue: number;
 }
 
@@ -40,7 +38,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSignUp,
   onSignOut,
   onResetData,
-  onOpenSupabaseConnect,
   totalUsdValue,
 }) => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -128,20 +125,9 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {t.tab_ledger}
             </button>
-
-            <button
-              onClick={() => setActiveTab('sql-architecture')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
-                activeTab === 'sql-architecture'
-                  ? 'bg-slate-800 text-cyan-300'
-                  : 'text-slate-400 hover:text-cyan-300 hover:bg-slate-900/60'
-              }`}
-            >
-              {t.tab_schema}
-            </button>
           </nav>
 
-          {/* Zone 3: Sign In, Sign Up, Account & Supabase */}
+          {/* Zone 3: Sign In, Sign Up & Account */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Total Balance Badge (visible when signed in) */}
             {currentUser && (
@@ -154,16 +140,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
             )}
-
-            {/* Supabase Connect Button */}
-            <button
-              onClick={onOpenSupabaseConnect}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-900/90 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 text-xs font-medium transition-colors cursor-pointer"
-              title="Connect to Supabase Database"
-            >
-              <Database className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline font-mono">Supabase</span>
-            </button>
 
             {/* If Signed Out: Show Primary Sign In & Sign Up buttons */}
             {!currentUser ? (
@@ -331,14 +307,6 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             {t.tab_ledger}
-          </button>
-          <button
-            onClick={() => setActiveTab('sql-architecture')}
-            className={`px-2.5 py-1 rounded whitespace-nowrap ${
-              activeTab === 'sql-architecture' ? 'bg-slate-800 text-cyan-300 font-semibold' : 'text-slate-400'
-            }`}
-          >
-            {t.tab_schema}
           </button>
         </div>
       </div>

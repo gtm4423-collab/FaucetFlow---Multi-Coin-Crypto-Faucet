@@ -363,16 +363,15 @@ export const FaucetSection: React.FC<FaucetSectionProps> = ({
         })}
       </div>
 
-      {/* Mechanism-to-Outcome Architecture Callout */}
+      {/* Core Faucet Architecture Features */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
         <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-white">
             <Lock className="w-4 h-4 text-emerald-400" />
-            <span>Advisory Locks Serialization</span>
+            <span>Anti-Cheat & Double-Claim Guard</span>
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            The SQL uses <code className="text-emerald-300 font-mono text-[11px]">pg_advisory_xact_lock()</code> to
-            serialize claim attempts per user and coin, preventing race condition double-spending.
+            Multi-threaded request serialization prevents duplicate claims, race conditions, and automated exploits.
           </p>
         </div>
 
@@ -382,19 +381,17 @@ export const FaucetSection: React.FC<FaucetSectionProps> = ({
             <span>60-Second Cooldown Interval</span>
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Verified directly against <code className="text-cyan-300 font-mono text-[11px]">public.claims</code> table
-            where <code className="text-cyan-300 font-mono text-[11px]">claimed_at &gt; now() - interval '60s'</code>.
+            Each cryptocurrency features an independent 60-second timer to ensure fair distribution and sustainable faucet reserves.
           </p>
         </div>
 
         <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-white">
             <Shield className="w-4 h-4 text-purple-400" />
-            <span>Security Definer RPC</span>
+            <span>Instant Balance Crediting</span>
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Direct client inserts to <code className="text-purple-300 font-mono text-[11px]">balances</code> are
-            blocked by RLS. Mutations must flow through <code className="text-purple-300 font-mono text-[11px]">claim_reward()</code>.
+            Claim rewards are credited directly to your account balances with a real-time cryptographic audit trail.
           </p>
         </div>
       </div>

@@ -6,7 +6,6 @@ export const UI_TEXT = {
   tab_referral: '10% Referral',
   tab_withdraw: 'Withdraw',
   tab_ledger: 'Claims Ledger',
-  tab_schema: 'Supabase Architecture',
   switch_user: 'Switch Account',
   claim_reward: 'Claim Reward',
   ready_to_claim: 'Ready to Claim',
@@ -21,7 +20,5 @@ export const UI_TEXT = {
   withdraw_title: 'Request Crypto Payout',
   min_amount: 'Min. Payout',
   network_fee: 'Network Fee',
-  security_verified: 'PG Advisory Lock Guarded',
-  sql_overview_title: 'Supabase Database Architecture',
-  sql_overview_desc: 'Complete overview of Row Level Security (RLS), Advisory Locks, and 10% Referral Commissions.',
+  security_verified: 'Cooldown & Security Guarded',
 };

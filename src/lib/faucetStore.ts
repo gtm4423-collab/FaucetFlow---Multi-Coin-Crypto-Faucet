@@ -18,6 +18,7 @@ const STORAGE_KEYS = {
   STATS: 'faucetflow_stats_v2',
   COOLDOWNS: 'faucetflow_cooldowns_v2',
   COMPLETED_TASKS: 'faucetflow_completed_tasks_v2',
+  PASSWORDS: 'faucetflow_passwords_v2',
 };
 
 // Seed users
@@ -162,6 +163,7 @@ export class FaucetDatabase {
   private stats: FaucetStats;
   private cooldowns: Record<string, number>;
   private completedTaskIds: string[];
+  private passwords: Record<string, string>;
   private listeners: Set<() => void> = new Set();
 
   constructor() {
@@ -173,6 +175,7 @@ export class FaucetDatabase {
     this.stats = loadStorage(STORAGE_KEYS.STATS, INITIAL_STATS);
     this.cooldowns = loadStorage(STORAGE_KEYS.COOLDOWNS, {});
     this.completedTaskIds = loadStorage(STORAGE_KEYS.COMPLETED_TASKS, []);
+    this.passwords = loadStorage(STORAGE_KEYS.PASSWORDS, {});
   }
 
   public subscribe(listener: () => void): () => void {
@@ -189,6 +192,7 @@ export class FaucetDatabase {
     saveStorage(STORAGE_KEYS.STATS, this.stats);
     saveStorage(STORAGE_KEYS.COOLDOWNS, this.cooldowns);
     saveStorage(STORAGE_KEYS.COMPLETED_TASKS, this.completedTaskIds);
+    saveStorage(STORAGE_KEYS.PASSWORDS, this.passwords);
     this.listeners.forEach((fn) => fn());
   }
 
@@ -247,7 +251,7 @@ export class FaucetDatabase {
     return newUser;
   }
 
-  public signIn(identifier: string): UserProfile {
+  public signIn(identifier: string, password?: string): UserProfile {
     const clean = identifier.trim().toLowerCase();
     const user = this.users.find(
       (u) => u.email.toLowerCase() === clean || u.username.toLowerCase() === clean
@@ -255,6 +259,14 @@ export class FaucetDatabase {
     if (!user) {
       throw new Error(`Account not found for "${identifier}". Please create an account via Sign Up.`);
     }
+
+    // If account has a password, check it
+    if (this.passwords[user.id] && password) {
+      if (this.passwords[user.id] !== password) {
+        throw new Error('Incorrect password. Please verify your credentials and try again.');
+      }
+    }
+
     this.currentUserId = user.id;
     this.notify();
     return user;
@@ -265,16 +277,21 @@ export class FaucetDatabase {
     this.notify();
   }
 
-  public signUp(username: string, email: string, referrerId?: string | null): UserProfile {
+  public signUp(username: string, email: string, password?: string, referrerId?: string | null): UserProfile {
     const existing = this.users.find(
       (u) =>
         u.email.toLowerCase() === email.trim().toLowerCase() ||
         u.username.toLowerCase() === username.trim().toLowerCase()
     );
     if (existing) {
-      throw new Error('A user with that email or username already exists.');
+      throw new Error('An account with that email or username already exists. Please Sign In.');
     }
-    return this.createUser(username, email, referrerId);
+    const newUser = this.createUser(username, email, referrerId);
+    if (password && password.trim()) {
+      this.passwords[newUser.id] = password.trim();
+      saveStorage(STORAGE_KEYS.PASSWORDS, this.passwords);
+    }
+    return newUser;
   }
 
   public getUserBalances(userId?: string): Record<CoinType, number> {
@@ -558,6 +575,7 @@ export class FaucetDatabase {
     localStorage.removeItem(STORAGE_KEYS.STATS);
     localStorage.removeItem(STORAGE_KEYS.COOLDOWNS);
     localStorage.removeItem(STORAGE_KEYS.COMPLETED_TASKS);
+    localStorage.removeItem(STORAGE_KEYS.PASSWORDS);
 
     this.users = [...INITIAL_USERS];
     this.currentUserId = 'usr-492a-seeker';
@@ -567,6 +585,7 @@ export class FaucetDatabase {
     this.stats = { ...INITIAL_STATS };
     this.cooldowns = {};
     this.completedTaskIds = [];
+    this.passwords = {};
     this.notify();
   }
 }

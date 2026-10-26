@@ -13,10 +13,8 @@ import { OfferwallsSection } from './components/OfferwallsSection';
 import { ReferralSection } from './components/ReferralSection';
 import { LedgerSection } from './components/LedgerSection';
 import { WithdrawSection } from './components/WithdrawSection';
-import { SqlSchemaSection } from './components/SqlSchemaSection';
 import { AuthModal } from './components/AuthModal';
-import { SupabaseConnectModal } from './components/SupabaseConnectModal';
-import { Droplets, ShieldCheck, Database, Download } from 'lucide-react';
+import { Droplets, ShieldCheck, Download, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('faucet');
@@ -26,7 +24,6 @@ export default function App() {
   const [claims, setClaims] = useState(faucetDb.getClaims());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
-  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
 
   // Sync state whenever the store updates
   const syncStore = useCallback(() => {
@@ -88,7 +85,6 @@ export default function App() {
         onOpenSignUp={handleOpenSignUp}
         onSignOut={handleSignOut}
         onResetData={handleResetData}
-        onOpenSupabaseConnect={() => setIsSupabaseModalOpen(true)}
         totalUsdValue={totalUsdValue}
       />
 
@@ -134,10 +130,6 @@ export default function App() {
             onNavigateFaucet={() => setActiveTab('faucet')}
           />
         )}
-
-        {activeTab === 'sql-architecture' && (
-          <SqlSchemaSection onOpenSupabaseConnect={() => setIsSupabaseModalOpen(true)} />
-        )}
       </main>
 
       {/* Footer */}
@@ -147,7 +139,7 @@ export default function App() {
             <Droplets className="w-4 h-4 text-emerald-500" />
             <span className="text-slate-300 font-semibold">FaucetFlow Engine</span>
             <span>·</span>
-            <span>Supabase PostgreSQL Edition</span>
+            <span>Multi-Coin Crypto Faucet &amp; User Dashboard</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-slate-400">
@@ -161,11 +153,11 @@ export default function App() {
             </a>
             <span className="hidden sm:inline">·</span>
             <span className="hidden sm:flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> RLS Enforced
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 60s Fair-Use Cooldown
             </span>
             <span className="hidden sm:inline">·</span>
             <span className="hidden sm:flex items-center gap-1">
-              <Database className="w-3.5 h-3.5 text-cyan-400" /> 60s Transaction Cooldown
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Instant Wallet Crediting
             </span>
           </div>
         </div>
@@ -177,13 +169,6 @@ export default function App() {
         initialMode={authModalMode}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={syncStore}
-      />
-
-      {/* Supabase Connection Modal */}
-      <SupabaseConnectModal
-        isOpen={isSupabaseModalOpen}
-        onClose={() => setIsSupabaseModalOpen(false)}
-        onConnectionChange={syncStore}
       />
     </div>
   );

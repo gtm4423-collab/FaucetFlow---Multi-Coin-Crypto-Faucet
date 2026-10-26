@@ -78,5 +78,5 @@ export interface FaucetStats {
   claimsLast24h: number;
 }
 
-export type ActiveTab = 'faucet' | 'offerwalls' | 'referral' | 'withdraw' | 'ledger' | 'sql-architecture';
+export type ActiveTab = 'faucet' | 'offerwalls' | 'referral' | 'withdraw' | 'ledger';
 

@@ -70,12 +70,11 @@ export const LedgerSection: React.FC<LedgerSectionProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Database className="w-5 h-5 text-emerald-400" />
-            <span>{t.tab_ledger} (public.claims)</span>
+            <CheckCircle className="w-5 h-5 text-emerald-400" />
+            <span>{t.tab_ledger}</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Auditable, immutable ledger recording every reward generated via{' '}
-            <code className="text-emerald-300 font-mono">claim_reward()</code>.
+            Auditable, immutable ledger recording every reward dispensed across the platform.
           </p>
         </div>
 

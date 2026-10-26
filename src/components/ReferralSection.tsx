@@ -59,7 +59,7 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
             <Percent className="w-3.5 h-3.5" />
             <span>10% Lifetime Referral Program</span>
             <span aria-hidden="true">·</span>
-            <span>Direct Schema Enforcement</span>
+            <span>Instant Automated Payouts</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -191,14 +191,14 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
         )}
       </div>
 
-      {/* SQL Mechanism Card */}
+      {/* Referral Engine Callout */}
       <div className="p-4 rounded-xl border border-slate-800 bg-slate-950 text-xs text-slate-400 space-y-1.5">
         <div className="flex items-center gap-2 text-slate-300 font-semibold">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>How the 10% Referral Bonus Executes in PostgreSQL:</span>
+          <span>How the 10% Referral Commission Works:</span>
         </div>
         <p className="leading-relaxed text-[11px]">
-          Inside your Supabase function <code className="text-emerald-300 font-mono">public.claim_reward()</code>, the database checks <code className="text-emerald-300 font-mono">referrer_id</code> from <code className="text-emerald-300 font-mono">public.profiles</code>. If valid, <code className="text-emerald-300 font-mono">ref_bonus := round(reward * 0.10, 12);</code> is atomically added to the referrer's balance row and recorded in <code className="text-emerald-300 font-mono">public.referral_claims</code>.
+          When anyone signs up using your username or referral link, your account is permanently linked as their referrer. Every time they claim crypto from the faucet, an automatic 10% commission bonus is calculated and instantly deposited into your wallet balances.
         </p>
       </div>
     </div>

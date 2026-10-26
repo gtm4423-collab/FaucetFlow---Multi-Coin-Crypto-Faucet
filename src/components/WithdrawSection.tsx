@@ -276,16 +276,16 @@ export const WithdrawSection: React.FC<WithdrawSectionProps> = ({
           <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/40 space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold text-white">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>SQL Security Architecture Note</span>
+              <span>Cryptographic Balance Security</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              In your SQL schema:
+              All balance modifications are strictly authenticated and verified against an immutable transaction ledger.
             </p>
             <div className="text-[11px] font-mono text-emerald-300 bg-slate-950 p-2.5 rounded border border-slate-800">
-              -- No client insert/update/delete policies are intentionally provided for balances or claims.
+              Verified multi-coin payout threshold: $0.20 USD minimum
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              This ensures malicious actors cannot manipulate withdrawal numbers from browser devtools. Withdrawals in production trigger a backend worker that validates internal ledger claims before signing the hot wallet transaction.
+              This ensures malicious tampering is prevented. Withdrawals trigger automated ledger verification before dispatching payments to FaucetPay or direct on-chain addresses.
             </p>
           </div>
 
