@@ -93,7 +93,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
     }
   };
 
-  const primaryTask = allFlexTasks.find((t) => t.id === 'bestplay-offer') || allFlexTasks[0];
+  const primaryTask = allFlexTasks.find((t) => t.id === 'bestplay-3apps-offer') || allFlexTasks[0];
 
   return (
     <div className="space-y-6">

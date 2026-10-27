@@ -78,8 +78,24 @@ export const COIN_CONFIGS: Record<CoinType, CoinConfig> = {
 
 export const FLEX_MEDIA_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTkx';
 export const BESTPLAY_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1MTAz';
+export const BESTPLAY_3APPS_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYx';
 
 export const OFFERWALL_TASKS: OfferwallTask[] = [
+  // BestPlay Tier-2: Download 3 Apps (Mega Payout Offer)
+  {
+    id: 'bestplay-3apps-offer',
+    offerwall: 'flexmedia',
+    title: 'BestPlay: Download & Play 3 Apps/Games',
+    description: 'Install BestPlay on Android, play casual games, and download 3 sponsored games inside BestPlay to unlock top-tier reward.',
+    category: 'App Install',
+    rewardCoin: 'USDT',
+    rewardAmount: 4.80000000,
+    points: 4800,
+    estMinutes: 10,
+    partnerName: 'BestPlay Special · Flex Media',
+    difficulty: 'Medium',
+    linkUrl: BESTPLAY_3APPS_OFFER_URL,
+  },
   // BestPlay Featured Super Offer (High Payout)
   {
     id: 'bestplay-offer',
