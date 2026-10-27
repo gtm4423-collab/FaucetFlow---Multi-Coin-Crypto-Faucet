@@ -62,12 +62,12 @@ export interface OfferwallTask {
   offerwall: 'timewall' | 'monlix';
   title: string;
   description: string;
-  category: 'Survey' | 'App Install' | 'Game Quest' | 'Micro Task';
+  category: 'Survey' | 'App Install' | 'Game Quest' | 'Micro Task' | 'Sponsor Offer';
   rewardCoin: CoinType;
   rewardAmount: number;
   estMinutes: number;
   partnerName: string;
-  difficulty: 'Easy' | 'Medium' | 'High';
+  difficulty: 'Easy' | 'Medium' | 'High' | 'Instant';
 }
 
 export interface FaucetStats {

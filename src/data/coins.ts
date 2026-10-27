@@ -68,6 +68,18 @@ export const COIN_CONFIGS: Record<CoinType, CoinConfig> = {
 export const OFFERWALL_TASKS: OfferwallTask[] = [
   // Offerwall 1: Timewall (Surveys & Micro Tasks)
   {
+    id: 'sponsor-direct-1',
+    offerwall: 'timewall',
+    title: 'Featured Sponsor Smartlink Offer',
+    description: 'Visit our verified high-CPM partner sponsor to earn instant USDT rewards.',
+    category: 'Sponsor Offer',
+    rewardCoin: 'USDT',
+    rewardAmount: 0.05000000,
+    estMinutes: 1,
+    partnerName: 'Direct Partner Network',
+    difficulty: 'Instant',
+  },
+  {
     id: 'tw-1',
     offerwall: 'timewall',
     title: 'Daily High-Yield Consumer Survey',
@@ -117,6 +129,18 @@ export const OFFERWALL_TASKS: OfferwallTask[] = [
   },
 
   // Offerwall 2: Monlix (Apps, Games & Quests)
+  {
+    id: 'sponsor-direct-2',
+    offerwall: 'monlix',
+    title: 'High-Yield Direct Sponsor Quest',
+    description: 'Visit the sponsor network and claim instant bonus DOGE for your wallet.',
+    category: 'Sponsor Offer',
+    rewardCoin: 'DOGE',
+    rewardAmount: 0.50000000,
+    estMinutes: 1,
+    partnerName: 'Direct Partner Network',
+    difficulty: 'Instant',
+  },
   {
     id: 'mx-1',
     offerwall: 'monlix',

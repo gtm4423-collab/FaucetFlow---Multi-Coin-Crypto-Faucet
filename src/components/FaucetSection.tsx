@@ -16,7 +16,8 @@ import {
   ExternalLink,
 } from 'lucide-react';
 
-export const CLAIM_SPONSOR_URL = 'https://surl.li/pwwkjr';
+export const CLAIM_SPONSOR_URL =
+  'https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU';
 
 interface FaucetSectionProps {
   currentUser: UserProfile | null;
@@ -156,8 +157,8 @@ export const FaucetSection: React.FC<FaucetSectionProps> = ({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 hover:bg-emerald-500/20 transition-colors"
             >
-              <span className="text-slate-400">Claim Sponsor:</span>
-              <span className="font-mono font-medium underline">https://surl.li/pwwkjr</span>
+              <span className="text-slate-400">Direct Sponsor:</span>
+              <span className="font-mono font-medium underline">unsightlystrain.com (High-CPM)</span>
               <ExternalLink className="w-3 h-3 text-emerald-400" />
             </a>
 
@@ -346,14 +347,14 @@ export const FaucetSection: React.FC<FaucetSectionProps> = ({
 
                 {/* Direct Sponsor Link Reference */}
                 <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800/60">
-                  <span className="text-slate-500">Reward Link:</span>
+                  <span className="text-slate-500">Sponsor Link:</span>
                   <a
                     href={CLAIM_SPONSOR_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-400 hover:text-emerald-300 font-mono flex items-center gap-1 transition-colors"
                   >
-                    <span>surl.li/pwwkjr</span>
+                    <span>Direct Link</span>
                     <ExternalLink className="w-2.5 h-2.5" />
                   </a>
                 </div>

@@ -54,6 +54,14 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
     setSuccessNotice(null);
     setLoadingTaskId(task.id);
 
+    if (task.id.startsWith('sponsor-direct')) {
+      window.open(
+        'https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU',
+        '_blank',
+        'noopener,noreferrer'
+      );
+    }
+
     try {
       const result = await faucetDb.completeOfferwallTask(task.id);
 

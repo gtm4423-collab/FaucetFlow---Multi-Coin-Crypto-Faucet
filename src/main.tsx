@@ -4,11 +4,13 @@ import './index.css';
 
 createRoot(document.getElementById('root')!).render(<App />);
 
-// Ensure any previously registered ad service workers are unregistered
+// Clean up legacy 5gvci ad worker if cached in browser
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     for (const registration of registrations) {
-      registration.unregister().catch(() => {});
+      if (registration.active?.scriptURL.includes('5gvci.com') || registration.scope.includes('sw.js')) {
+        registration.unregister().catch(() => {});
+      }
     }
   });
 }

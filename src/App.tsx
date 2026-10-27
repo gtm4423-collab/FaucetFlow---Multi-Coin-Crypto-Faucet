@@ -14,7 +14,7 @@ import { ReferralSection } from './components/ReferralSection';
 import { LedgerSection } from './components/LedgerSection';
 import { WithdrawSection } from './components/WithdrawSection';
 import { AuthModal } from './components/AuthModal';
-import { Droplets, ShieldCheck, Download, Sparkles } from 'lucide-react';
+import { Droplets, ShieldCheck, Download, Sparkles, ExternalLink } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('faucet');
@@ -87,6 +87,29 @@ export default function App() {
         onResetData={handleResetData}
         totalUsdValue={totalUsdValue}
       />
+
+      {/* Official Sponsor Direct Smartlink Banner */}
+      <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/60 border-b border-emerald-500/20 py-2 px-4 text-xs">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-slate-300">
+            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider border border-emerald-500/30">
+              Sponsored
+            </span>
+            <span className="text-slate-200 font-medium">
+              Explore our Premium Sponsor &amp; support free multi-coin faucet claims!
+            </span>
+          </div>
+          <a
+            href="https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all text-xs shadow-sm hover:shadow-emerald-500/20"
+          >
+            <span>Visit Sponsor Link</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </div>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
