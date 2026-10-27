@@ -4,11 +4,11 @@ import './index.css';
 
 createRoot(document.getElementById('root')!).render(<App />);
 
-// Register root service worker if supported by browser
+// Ensure any previously registered ad service workers are unregistered
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.warn('Service worker registration:', err);
-    });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister().catch(() => {});
+    }
   });
 }
