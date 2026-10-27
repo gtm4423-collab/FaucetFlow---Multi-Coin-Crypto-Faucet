@@ -59,7 +59,7 @@ export interface ReferralClaimRecord {
 
 export interface OfferwallTask {
   id: string;
-  offerwall: 'timewall' | 'monlix';
+  offerwall: 'flexmedia' | 'timewall' | 'monlix';
   title: string;
   description: string;
   category: 'Survey' | 'App Install' | 'Game Quest' | 'Micro Task' | 'Sponsor Offer';
@@ -68,6 +68,8 @@ export interface OfferwallTask {
   estMinutes: number;
   partnerName: string;
   difficulty: 'Easy' | 'Medium' | 'High' | 'Instant';
+  linkUrl?: string;
+  points?: number;
 }
 
 export interface FaucetStats {

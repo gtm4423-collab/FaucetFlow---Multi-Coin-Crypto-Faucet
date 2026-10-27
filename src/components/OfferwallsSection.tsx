@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { CoinType, OfferwallTask, UserProfile } from '../types';
-import { COIN_CONFIGS, OFFERWALL_TASKS, SPONSOR_LINKS } from '../data/coins';
+import { COIN_CONFIGS, OFFERWALL_TASKS, FLEX_MEDIA_OFFER_URL } from '../data/coins';
 import { faucetDb } from '../lib/faucetStore';
 import {
   CheckCircle2,
@@ -9,12 +9,13 @@ import {
   Sparkles,
   Zap,
   ExternalLink,
-  Smartphone,
-  Layers,
   Award,
   DollarSign,
   TrendingUp,
   AlertCircle,
+  Filter,
+  Flame,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface OfferwallsSectionProps {
@@ -28,7 +29,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
   onRewardClaimed,
   onOpenSignIn,
 }) => {
-  const [activeWall, setActiveWall] = useState<'timewall' | 'monlix'>('timewall');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<{
     taskTitle: string;
@@ -37,7 +38,17 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
   } | null>(null);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
 
-  const filteredTasks = OFFERWALL_TASKS.filter((t) => t.offerwall === activeWall);
+  // All tasks in Flex Media
+  const allFlexTasks = OFFERWALL_TASKS.filter((t) => t.offerwall === 'flexmedia');
+
+  const filteredTasks = allFlexTasks.filter((task) => {
+    if (categoryFilter === 'all') return true;
+    if (categoryFilter === 'sponsor') return task.category === 'Sponsor Offer';
+    if (categoryFilter === 'survey') return task.category === 'Survey';
+    if (categoryFilter === 'apps') return task.category === 'App Install' || task.category === 'Game Quest';
+    if (categoryFilter === 'micro') return task.category === 'Micro Task';
+    return true;
+  });
 
   const handleStartTask = async (task: OfferwallTask) => {
     if (!currentUser) {
@@ -46,7 +57,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
     }
 
     if (faucetDb.isTaskCompleted(task.id)) {
-      setErrorNotice('You have already completed this task.');
+      setErrorNotice('You have already completed this offer.');
       return;
     }
 
@@ -54,13 +65,9 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
     setSuccessNotice(null);
     setLoadingTaskId(task.id);
 
-    if (task.id === 'sponsor-direct-1') {
-      window.open(SPONSOR_LINKS.smartlink2, '_blank', 'noopener,noreferrer');
-    } else if (task.id === 'sponsor-direct-2') {
-      window.open(SPONSOR_LINKS.primary, '_blank', 'noopener,noreferrer');
-    } else if (task.id.startsWith('sponsor-direct')) {
-      window.open(SPONSOR_LINKS.smartlink3, '_blank', 'noopener,noreferrer');
-    }
+    // Always launch the Flex Media offer URL in a new tab
+    const targetUrl = task.linkUrl || FLEX_MEDIA_OFFER_URL;
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
 
     try {
       const result = await faucetDb.completeOfferwallTask(task.id);
@@ -80,97 +87,150 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
 
       onRewardClaimed();
     } catch (err: unknown) {
-      setErrorNotice(err instanceof Error ? err.message : 'Task verification failed');
+      setErrorNotice(err instanceof Error ? err.message : 'Offer verification failed');
     } finally {
       setLoadingTaskId(null);
     }
   };
 
+  const primaryTask = allFlexTasks.find((t) => t.id === 'bestplay-offer') || allFlexTasks[0];
+
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 sm:p-8">
-        <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-semibold">
+      {/* Header Hero Banner for Flex Media */}
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-slate-900 via-slate-900/90 to-emerald-950/40 p-6 sm:p-8">
+        <div className="relative z-10 max-w-3xl space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-400 font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>High-Yield Offerwall Tasks</span>
+            <span>Flex Media Official Offerwall</span>
             <span aria-hidden="true">·</span>
-            <span>Instant Wallet Credit</span>
+            <span>Instant Crypto Payouts</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Earn Crypto via <span className="text-emerald-400">Offerwalls</span>
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Flex Media <span className="text-emerald-400">Offerwall</span>
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Complete quick surveys, test mobile games, and engage with verified sponsors to earn high micro-rewards credited directly to your BTC, LTC, DOGE, or USDT balance.
+            Complete high-paying verified partner tasks, surveys, app installations, and promotional campaigns from Flex Media. Earn BTC, LTC, DOGE, and USDT credited instantly to your account wallet.
           </p>
 
-          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-400">
-            <span className="flex items-center gap-1.5 text-slate-200">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+          <div className="pt-1 flex flex-wrap items-center gap-3 text-xs">
+            <a
+              href={FLEX_MEDIA_OFFER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+            >
+              <span>Launch Flex Media Portal</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+
+            <div className="flex items-center gap-1.5 text-slate-300 px-3 py-2 rounded-lg bg-slate-900/80 border border-slate-800">
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
               <span>Earn up to $0.50+ per offer</span>
-            </span>
-            <span className="text-slate-600">·</span>
-            <span className="flex items-center gap-1.5 text-slate-200">
-              <Zap className="w-4 h-4 text-amber-400" />
-              <span>Zero Waiting: Instant Crediting</span>
-            </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-slate-300 px-3 py-2 rounded-lg bg-slate-900/80 border border-slate-800">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Zero Waiting Delay</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Offerwall Switcher Bar (2 Offerwalls: Timewall & Monlix) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2 rounded-xl bg-slate-900/80 border border-slate-800">
-        <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
-          {/* Offerwall 1: Timewall */}
-          <button
-            onClick={() => {
-              setActiveWall('timewall');
-              setErrorNotice(null);
-            }}
-            className={`flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeWall === 'timewall'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <div className="text-left">
-              <div className="leading-tight">Timewall</div>
-              <div className={`text-[10px] font-normal ${activeWall === 'timewall' ? 'text-slate-900/80' : 'text-slate-500'}`}>
-                Surveys & Clicks
+      {/* Featured Top Flex Media Campaign Card */}
+      {primaryTask && (
+        <div className="relative overflow-hidden rounded-xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-950 p-5 shadow-lg shadow-emerald-950/30">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider">
+                  <Flame className="w-3 h-3" /> Featured Top Offer
+                </span>
+                <span className="text-[11px] text-emerald-400 font-mono font-semibold">
+                  Flex Media Partner
+                </span>
               </div>
+              <h2 className="text-base sm:text-lg font-bold text-white">{primaryTask.title}</h2>
+              <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                {primaryTask.description}
+              </p>
             </div>
-          </button>
 
-          {/* Offerwall 2: Monlix */}
-          <button
-            onClick={() => {
-              setActiveWall('monlix');
-              setErrorNotice(null);
-            }}
-            className={`flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeWall === 'monlix'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Smartphone className="w-4 h-4" />
-            <div className="text-left">
-              <div className="leading-tight">Monlix</div>
-              <div className={`text-[10px] font-normal ${activeWall === 'monlix' ? 'text-slate-900/80' : 'text-slate-500'}`}>
-                Apps & Game Quests
+            <div className="flex items-center justify-between md:justify-end gap-4 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+              <div className="flex flex-col text-left md:text-right">
+                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                  {primaryTask.points ? `${primaryTask.points.toLocaleString()} Points · High Payout` : 'Instant Payout'}
+                </span>
+                <span className="text-lg font-black text-emerald-400 font-mono">
+                  +{primaryTask.rewardAmount} {primaryTask.rewardCoin}
+                </span>
+                {primaryTask.points && (
+                  <span className="text-[11px] text-amber-300 font-mono font-semibold">
+                    ~${(primaryTask.rewardAmount * COIN_CONFIGS[primaryTask.rewardCoin].usdPrice).toFixed(2)} USD Value
+                  </span>
+                )}
               </div>
+
+              <button
+                onClick={() => handleStartTask(primaryTask)}
+                disabled={loadingTaskId === primaryTask.id || faucetDb.isTaskCompleted(primaryTask.id)}
+                className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all shadow-md shadow-emerald-500/25 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {loadingTaskId === primaryTask.id ? (
+                  <>
+                    <Zap className="w-3.5 h-3.5 animate-spin" />
+                    <span>Verifying...</span>
+                  </>
+                ) : faucetDb.isTaskCompleted(primaryTask.id) ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-900" />
+                    <span>Completed</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Start Featured Offer</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
             </div>
-          </button>
+          </div>
+        </div>
+      )}
+
+      {/* Category Filter Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          <span className="text-xs text-slate-500 font-medium px-2 flex items-center gap-1">
+            <Filter className="w-3 h-3 text-slate-400" /> Filter:
+          </span>
+          {[
+            { id: 'all', label: 'All Offers' },
+            { id: 'sponsor', label: 'Sponsor Offers' },
+            { id: 'survey', label: 'Surveys' },
+            { id: 'apps', label: 'Apps & Games' },
+            { id: 'micro', label: 'Micro Tasks' },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoryFilter(cat.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                categoryFilter === cat.id
+                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
-        {/* Info Indicator */}
-        <div className="text-xs text-slate-400 px-3 flex items-center gap-1.5">
-          <Award className="w-4 h-4 text-emerald-400" />
+        <div className="text-xs text-slate-400 px-2 flex items-center gap-1.5">
+          <Award className="w-3.5 h-3.5 text-emerald-400" />
           <span>
-            Showing verified <strong>{activeWall === 'timewall' ? 'Timewall' : 'Monlix'}</strong> sponsored tasks
+            Showing <strong>{filteredTasks.length}</strong> Flex Media offers
           </span>
         </div>
       </div>
@@ -181,7 +241,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>
-              Task <strong>"{successNotice.taskTitle}"</strong> verified! Credited{' '}
+              Offer <strong>"{successNotice.taskTitle}"</strong> verified! Credited{' '}
               <strong className="text-white font-mono">
                 +{successNotice.amount} {successNotice.coin}
               </strong>{' '}
@@ -190,7 +250,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
           </div>
           <button
             onClick={() => setSuccessNotice(null)}
-            className="text-emerald-400 hover:text-white text-xs font-semibold"
+            className="text-emerald-400 hover:text-white text-xs font-semibold cursor-pointer"
           >
             Dismiss
           </button>
@@ -204,7 +264,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
         </div>
       )}
 
-      {/* Tasks Grid */}
+      {/* Flex Media Tasks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredTasks.map((task) => {
           const cfg = COIN_CONFIGS[task.rewardCoin];
@@ -218,7 +278,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
               className={`rounded-xl border p-5 transition-all flex flex-col justify-between gap-4 ${
                 isCompleted
                   ? 'bg-slate-950/60 border-slate-800/60 opacity-70'
-                  : 'bg-slate-900/60 hover:bg-slate-900 border-slate-800 hover:border-slate-700 shadow-sm'
+                  : 'bg-slate-900/60 hover:bg-slate-900 border-slate-800 hover:border-emerald-500/40 shadow-sm'
               }`}
             >
               <div className="space-y-3">
@@ -227,18 +287,18 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700/60">
                       {task.category}
                     </span>
-                    <span className="text-[11px] text-slate-500 font-mono">
+                    <span className="text-[11px] text-emerald-400/90 font-mono">
                       {task.partnerName}
                     </span>
                   </div>
 
                   <span
                     className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                      task.difficulty === 'Easy'
+                      task.difficulty === 'Instant'
+                        ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-600/60 font-bold'
+                        : task.difficulty === 'Easy'
                         ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60'
-                        : task.difficulty === 'Medium'
-                        ? 'bg-amber-950/80 text-amber-300 border border-amber-800/60'
-                        : 'bg-purple-950/80 text-purple-300 border border-purple-800/60'
+                        : 'bg-amber-950/80 text-amber-300 border border-amber-800/60'
                     }`}
                   >
                     {task.difficulty}
@@ -256,13 +316,19 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
                   <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
                     Task Reward
                   </span>
-                  <div className="flex items-baseline gap-1.5">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-sm font-bold text-emerald-400 font-mono">
                       +{task.rewardAmount} {task.rewardCoin}
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      (~${estUsd.toFixed(4)})
-                    </span>
+                    {task.points ? (
+                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono text-[10px] font-bold">
+                        {task.points.toLocaleString()} pts (~${estUsd.toFixed(2)})
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        (~${estUsd.toFixed(4)})
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -306,17 +372,26 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
         })}
       </div>
 
-      {/* Integration Info Card for Webmasters */}
+      {/* Flex Media Integration & Postback Info Card */}
       <div className="p-4 rounded-xl border border-slate-800/80 bg-slate-950 text-xs text-slate-400 space-y-2">
         <div className="flex items-center justify-between text-slate-300 font-semibold">
           <span className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-emerald-400" />
-            <span>Offerwall Postback & Webmaster Integration</span>
+            <span>Flex Media Gateway &amp; Postback</span>
           </span>
-          <span className="text-[11px] font-mono text-emerald-400">Timewall & Monlix Ready</span>
+          <span className="text-[11px] font-mono text-emerald-400">Flex Media Active</span>
         </div>
         <p className="leading-relaxed text-[11px]">
-          To connect your live publisher account from Timewall.io or Monlix.com, configure your postback URL in your offerwall publisher panel to credit your Supabase <code className="text-emerald-300 font-mono">public.balances</code> table upon user task completions.
+          Offers are powered by <strong className="text-white">Flex Media</strong>. Users can engage directly via{' '}
+          <a
+            href={FLEX_MEDIA_OFFER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 underline font-mono hover:text-emerald-300"
+          >
+            flexmediax.link/go/MTUyfDM1OTkx
+          </a>{' '}
+          and receive automated multi-coin wallet payouts.
         </p>
       </div>
     </div>

@@ -439,7 +439,7 @@ export class FaucetDatabase {
   }
 
   /**
-   * Completes an Offerwall Task (Timewall or Monlix) and credits reward to user wallet
+   * Completes an Offerwall Task (Flex Media) and credits reward to user wallet
    */
   public async completeOfferwallTask(taskId: string): Promise<{
     task: OfferwallTask;
