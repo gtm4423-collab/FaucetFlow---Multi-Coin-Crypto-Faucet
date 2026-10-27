@@ -2,6 +2,17 @@ import { CoinConfig, CoinType, OfferwallTask } from '../types';
 
 export const MIN_WITHDRAW_USD = 0.20; // Minimum withdrawal threshold set to 0.20$ USD
 
+export const SPONSOR_LINKS = {
+  primary: 'https://dutiful-hate.com/b/3IVF0.PW3eptv/bdmoVWJFZHD/0z3wNOTnUY2sMYTyQxxGL/TJc/1/NbTwYJx/NIDEU-',
+  smartlink2: 'https://unsightlystrain.com/dOmBF/zxd.GxNJvjZeGRUe/sehmI9du/ZmUFlikiPETFce1yNCTJYDxSMJTdcptiNBzbU/1FN/jOEHyBM-Qf',
+  smartlink3: 'https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU',
+  all: [
+    'https://dutiful-hate.com/b/3IVF0.PW3eptv/bdmoVWJFZHD/0z3wNOTnUY2sMYTyQxxGL/TJc/1/NbTwYJx/NIDEU-',
+    'https://unsightlystrain.com/dOmBF/zxd.GxNJvjZeGRUe/sehmI9du/ZmUFlikiPETFce1yNCTJYDxSMJTdcptiNBzbU/1FN/jOEHyBM-Qf',
+    'https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU',
+  ],
+};
+
 export const COIN_CONFIGS: Record<CoinType, CoinConfig> = {
   BTC: {
     symbol: 'BTC',

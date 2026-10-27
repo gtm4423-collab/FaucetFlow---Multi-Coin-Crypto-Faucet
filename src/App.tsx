@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ActiveTab } from './types';
-import { COIN_CONFIGS } from './data/coins';
+import { COIN_CONFIGS, SPONSOR_LINKS } from './data/coins';
 import { faucetDb } from './lib/faucetStore';
 import { Header } from './components/Header';
 import { FaucetSection } from './components/FaucetSection';
@@ -100,7 +100,7 @@ export default function App() {
             </span>
           </div>
           <a
-            href="https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU"
+            href={SPONSOR_LINKS.primary}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all text-xs shadow-sm hover:shadow-emerald-500/20"

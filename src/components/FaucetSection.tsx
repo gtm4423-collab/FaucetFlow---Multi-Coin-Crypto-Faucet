@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { CoinType, UserProfile } from '../types';
-import { COIN_CONFIGS } from '../data/coins';
+import { COIN_CONFIGS, SPONSOR_LINKS } from '../data/coins';
 import { faucetDb } from '../lib/faucetStore';
 import { UI_TEXT } from '../data/translations';
 import {
@@ -16,8 +16,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 
-export const CLAIM_SPONSOR_URL =
-  'https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU';
+export const CLAIM_SPONSOR_URL = SPONSOR_LINKS.primary;
 
 interface FaucetSectionProps {
   currentUser: UserProfile | null;

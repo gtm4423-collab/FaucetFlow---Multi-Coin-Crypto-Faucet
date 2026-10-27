@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { CoinType, OfferwallTask, UserProfile } from '../types';
-import { COIN_CONFIGS, OFFERWALL_TASKS } from '../data/coins';
+import { COIN_CONFIGS, OFFERWALL_TASKS, SPONSOR_LINKS } from '../data/coins';
 import { faucetDb } from '../lib/faucetStore';
 import {
   CheckCircle2,
@@ -54,12 +54,12 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
     setSuccessNotice(null);
     setLoadingTaskId(task.id);
 
-    if (task.id.startsWith('sponsor-direct')) {
-      window.open(
-        'https://unsightlystrain.com/d.mLFMzNdlGTN/vgZiGAUH/neomF9Ju/ZJUolSkuPnTEcZ1/NXTOYwxDM/Tccpt/NgzpU/1jNIjFEEy/M-S_ZusLa/Wm1kpMdKDr0ixU',
-        '_blank',
-        'noopener,noreferrer'
-      );
+    if (task.id === 'sponsor-direct-1') {
+      window.open(SPONSOR_LINKS.smartlink2, '_blank', 'noopener,noreferrer');
+    } else if (task.id === 'sponsor-direct-2') {
+      window.open(SPONSOR_LINKS.primary, '_blank', 'noopener,noreferrer');
+    } else if (task.id.startsWith('sponsor-direct')) {
+      window.open(SPONSOR_LINKS.smartlink3, '_blank', 'noopener,noreferrer');
     }
 
     try {
