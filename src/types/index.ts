@@ -70,6 +70,7 @@ export interface OfferwallTask {
   difficulty: 'Easy' | 'Medium' | 'High' | 'Instant';
   linkUrl?: string;
   points?: number;
+  geoTarget?: string;
 }
 
 export interface FaucetStats {
