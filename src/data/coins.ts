@@ -79,24 +79,24 @@ export const COIN_CONFIGS: Record<CoinType, CoinConfig> = {
 export const FLEX_MEDIA_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTkx';
 export const BESTPLAY_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1MTAz';
 export const BESTPLAY_3APPS_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYx';
-export const BESTPLAY_CANADA_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYw';
+export const BESTPLAY_UK_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYw';
 
 export const OFFERWALL_TASKS: OfferwallTask[] = [
-  // BestPlay Canada Exclusive (CA Only Offer)
+  // BestPlay UK Exclusive (UK Only Offer)
   {
-    id: 'bestplay-canada-offer',
+    id: 'bestplay-uk-offer',
     offerwall: 'flexmedia',
-    title: 'BestPlay: Play & Earn Games (Canada Exclusive 🇨🇦)',
-    description: 'Exclusive for Canadian users! Download BestPlay, launch casual games, and play for 5+ minutes to claim high reward points.',
+    title: 'BestPlay: Play & Earn Games (United Kingdom Only 🇬🇧)',
+    description: 'Exclusive for UK (United Kingdom) users! Download BestPlay, launch casual games, and play for 5+ minutes to claim high reward points.',
     category: 'App Install',
     rewardCoin: 'USDT',
     rewardAmount: 3.20000000,
     points: 3200,
     estMinutes: 5,
-    partnerName: 'BestPlay Canada · Flex Media',
+    partnerName: 'BestPlay UK · Flex Media',
     difficulty: 'Easy',
-    linkUrl: BESTPLAY_CANADA_OFFER_URL,
-    geoTarget: 'Canada Only 🇨🇦',
+    linkUrl: BESTPLAY_UK_OFFER_URL,
+    geoTarget: 'United Kingdom (UK Only 🇬🇧)',
   },
   // BestPlay Tier-2: Download 3 Apps (Mega Payout Offer)
   {

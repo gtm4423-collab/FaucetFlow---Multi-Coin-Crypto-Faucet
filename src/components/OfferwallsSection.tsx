@@ -80,7 +80,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
 
   const filteredTasks = allFlexTasks.filter((task) => {
     if (categoryFilter === 'all') return true;
-    if (categoryFilter === 'canada') return !!task.geoTarget;
+    if (categoryFilter === 'uk') return !!task.geoTarget && (task.geoTarget.includes('UK') || task.geoTarget.includes('United Kingdom'));
     if (categoryFilter === 'sponsor') return task.category === 'Sponsor Offer';
     if (categoryFilter === 'survey') return task.category === 'Survey';
     if (categoryFilter === 'apps') return task.category === 'App Install' || task.category === 'Game Quest';
@@ -372,7 +372,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
           </span>
           {[
             { id: 'all', label: 'All Offers' },
-            { id: 'canada', label: '🇨🇦 Canada Only' },
+            { id: 'uk', label: '🇬🇧 UK Only' },
             { id: 'apps', label: 'Apps & Games' },
             { id: 'sponsor', label: 'Sponsor Offers' },
             { id: 'survey', label: 'Surveys' },
