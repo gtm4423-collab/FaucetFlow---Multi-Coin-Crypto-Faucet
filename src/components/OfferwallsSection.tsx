@@ -80,6 +80,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
 
   const filteredTasks = allFlexTasks.filter((task) => {
     if (categoryFilter === 'all') return true;
+    if (categoryFilter === 'us') return !!task.geoTarget && (task.geoTarget.includes('US') || task.geoTarget.includes('United States'));
     if (categoryFilter === 'uk') return !!task.geoTarget && (task.geoTarget.includes('UK') || task.geoTarget.includes('United Kingdom'));
     if (categoryFilter === 'sponsor') return task.category === 'Sponsor Offer';
     if (categoryFilter === 'survey') return task.category === 'Survey';
@@ -372,6 +373,7 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
           </span>
           {[
             { id: 'all', label: 'All Offers' },
+            { id: 'us', label: '🇺🇸 US Only' },
             { id: 'uk', label: '🇬🇧 UK Only' },
             { id: 'apps', label: 'Apps & Games' },
             { id: 'sponsor', label: 'Sponsor Offers' },
@@ -481,6 +483,11 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
                         {task.geoTarget}
                       </span>
                     )}
+                    {task.dailyCap && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                        Cap: {task.dailyCap}/day
+                      </span>
+                    )}
                     <span className="text-[11px] text-emerald-400/90 font-mono">
                       {task.partnerName}
                     </span>
@@ -502,6 +509,18 @@ export const OfferwallsSection: React.FC<OfferwallsSectionProps> = ({
                 <div>
                   <h3 className="text-sm font-bold text-white tracking-tight">{task.title}</h3>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">{task.description}</p>
+
+                  {task.requirements && (
+                    <div className="mt-2.5 p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-[11px] space-y-1">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[10px] uppercase tracking-wider">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>Conversion Steps &amp; Quality Guidelines</span>
+                      </div>
+                      <p className="text-slate-300 font-mono text-[10.5px] leading-relaxed">
+                        {task.requirements}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

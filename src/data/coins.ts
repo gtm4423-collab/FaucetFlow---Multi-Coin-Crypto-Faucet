@@ -80,8 +80,27 @@ export const FLEX_MEDIA_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTkx';
 export const BESTPLAY_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1MTAz';
 export const BESTPLAY_3APPS_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYx';
 export const BESTPLAY_UK_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYw';
+export const SECRETMEET_OFFER_URL = 'https://cpajunkie.trcpa.link/click?camp=2380&pubid=9346';
 
 export const OFFERWALL_TASKS: OfferwallTask[] = [
+  // SecretMeet US 30+ SOI Campaign (CPA Junkie)
+  {
+    id: 'secretmeet-us-offer',
+    offerwall: 'flexmedia',
+    title: 'SecretMeet: Desktop/Mobile SOI 30+ (US Only 🇺🇸)',
+    description: 'Sign up with genuine email, complete email verification, finish your profile, and browse for 20-30 minutes. Single Opt-In (SOI), all devices accepted.',
+    requirements: 'Registration · Mail Verification · Profile Complete · 20-30 Mins Active Browsing (Daily Cap: 20)',
+    category: 'Sponsor Offer',
+    rewardCoin: 'USDT',
+    rewardAmount: 3.00000000,
+    points: 3000,
+    dailyCap: 20,
+    estMinutes: 25,
+    partnerName: 'SecretMeet · CPA Junkie',
+    difficulty: 'Medium',
+    linkUrl: SECRETMEET_OFFER_URL,
+    geoTarget: 'United States (US 30+ 🇺🇸)',
+  },
   // BestPlay UK Exclusive (UK Only Offer)
   {
     id: 'bestplay-uk-offer',

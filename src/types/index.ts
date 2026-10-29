@@ -71,6 +71,8 @@ export interface OfferwallTask {
   linkUrl?: string;
   points?: number;
   geoTarget?: string;
+  requirements?: string;
+  dailyCap?: number;
 }
 
 export interface FaucetStats {
