@@ -1,8 +1,8 @@
 export const UI_TEXT = {
   brand: 'FaucetFlow',
-  tagline: 'Multi-Coin Crypto Faucet & Flex Media Offerwall',
+  tagline: 'Multi-Coin Crypto Faucet & Davil Offerwall',
   tab_faucet: 'Faucet',
-  tab_offerwalls: 'Flex Media',
+  tab_offerwalls: 'Offerwalls',
   tab_referral: '10% Referral',
   tab_withdraw: 'Withdraw',
   tab_ledger: 'Claims Ledger',

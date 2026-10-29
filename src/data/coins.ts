@@ -81,6 +81,7 @@ export const BESTPLAY_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1MTAz';
 export const BESTPLAY_3APPS_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYx';
 export const BESTPLAY_UK_OFFER_URL = 'https://flexmediax.link/go/MTUyfDM1OTYw';
 export const SECRETMEET_OFFER_URL = 'https://cpajunkie.trcpa.link/click?camp=2380&pubid=9346';
+export const DAVIL_WALL_URL = 'https://flexmediax.link/wall?uid=152&wall=N7vb1vi52E';
 
 export const OFFERWALL_TASKS: OfferwallTask[] = [
   // SecretMeet US 30+ SOI Campaign (CPA Junkie)
