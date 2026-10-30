@@ -1,34 +1,483 @@
 @import "tailwindcss";
 
-@layer base {
-  body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    color: #0f172a;
-    background-color: #0b0f19;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+:root {
+  --blue: #1878f9;
+  --navy: #0c1b36;
+  --muted: #536b8e;
+  --line: #dce6f4;
+}
 
-  code, pre, .font-mono, .tabular-nums {
-    font-family: 'JetBrains Mono', monospace;
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 48px 18px 56px;
+  background: linear-gradient(135deg, #ffffff 0%, #f4f8fe 100%);
+  color: var(--navy);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  width: min(100%, 720px);
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  margin: 0 auto 52px;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 57px;
+  height: 57px;
+  display: grid;
+  place-items: center;
+}
+
+.brand-mark svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 10px rgba(24, 120, 249, 0.25));
+}
+
+.brand-name {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.brand-name span {
+  color: var(--blue);
+}
+
+.player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: #000;
+  box-shadow: 0 12px 36px rgba(23, 76, 145, 0.08);
+  user-select: none;
+}
+
+.player video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  display: block;
+}
+
+.live {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  z-index: 10;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fff;
+  background: #ff2538;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(255, 37, 56, 0.4);
+}
+
+.live:before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #fff;
+  animation: pulse-live 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-live {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.85);
   }
 }
 
-/* Custom subtle scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+/* Center Box holding both Play Button and Native Banner */
+.play-center-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  z-index: 20;
+  pointer-events: auto;
+  width: max-content;
+  max-width: 92%;
+}
+
+/* Native banner positioned in the center with play button, slightly scaled down */
+.play-inner-ad,
+#container-a6ce642a43085fc79ae4325b71948658 {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  max-width: 195px;
+  min-height: 38px;
+  overflow: hidden;
+  transform: translateY(30px) scale(0.82);
+  transform-origin: center center;
+  pointer-events: auto;
+  z-index: 15;
+}
+
+/* Play button sharing the exact center cell */
+.play {
+  grid-area: 1 / 1;
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: linear-gradient(145deg, #3189ff, #0968f1);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 16px rgba(24, 120, 249, 0.4);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+  z-index: 25;
+}
+
+.play:hover {
+  transform: scale(1.08);
+  filter: brightness(1.06);
+}
+
+.play:active {
+  transform: scale(0.96);
+}
+
+.play svg {
+  width: 24px;
+  height: 24px;
+  margin-left: 3px;
+  fill: #ffffff;
+}
+
+.play.is-playing svg {
+  margin-left: 0;
+}
+
+/* Player Status toast overlay */
+.player-status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + 50px);
+  text-align: center;
+  font-size: 13px;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform: translateY(4px);
+  pointer-events: none;
+  z-index: 15;
+}
+
+.player-status.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.player-status span {
+  background: rgba(12, 27, 54, 0.78);
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Video Player Controls Bar */
+.controls {
+  position: absolute;
+  bottom: 12px;
+  left: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+  z-index: 15;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+  padding: 12px 10px 4px;
+  border-radius: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.control-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #ffffff;
+  cursor: pointer;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+  transition: transform 0.15s ease, color 0.15s ease;
+  border-radius: 4px;
+}
+
+.control-icon:hover {
+  transform: scale(1.12);
+  color: #8ac0ff;
+}
+
+.control-icon:active {
+  transform: scale(0.95);
+}
+
+.control-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.time-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.volume-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.volume {
+  width: 58px;
+  height: 4px;
+  accent-color: var(--blue);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.track {
   height: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.32);
+  flex: 1;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: height 0.15s ease;
 }
 
-::-webkit-scrollbar-track {
-  background: #0f172a;
+.track:hover {
+  height: 8px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+.track-fill {
+  height: 100%;
+  width: 3%;
+  background: linear-gradient(90deg, #38bdf8, var(--blue));
+  border-radius: 10px;
+  transition: width 0.1s linear;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+.spacer {
+  flex: 0 0 4px;
+}
+
+/* Speed badge button */
+.speed-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.speed-btn:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+/* Channel selection & Stream Dashboard card below video */
+.channels-card {
+  margin-top: 24px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(12, 27, 54, 0.04);
+}
+
+.channels-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.channels-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.channel-pill {
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid var(--line);
+  background: #f8fbff;
+  color: var(--navy);
+}
+
+.channel-pill:hover {
+  background: #eef5ff;
+  border-color: #bad3f8;
+}
+
+.channel-pill.active {
+  background: var(--blue);
+  color: #ffffff;
+  border-color: var(--blue);
+  box-shadow: 0 2px 8px rgba(24, 120, 249, 0.25);
+}
+
+/* Phone & Mobile Optimization */
+@media (max-width: 580px) {
+  body {
+    padding: 24px 14px 36px;
+  }
+  .page {
+    width: 100%;
+    max-width: 100%;
+  }
+  .brand {
+    margin-bottom: 28px;
+    gap: 10px;
+  }
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+  }
+  .brand-name {
+    font-size: 34px;
+    letter-spacing: -1.2px;
+  }
+  .player {
+    border-radius: 10px;
+  }
+  .live {
+    top: 10px;
+    left: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .live:before {
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+  }
+  .play-inner-ad,
+  #container-a6ce642a43085fc79ae4325b71948658 {
+    min-width: 120px;
+    max-width: 160px;
+    min-height: 34px;
+    transform: translateY(22px) scale(0.74);
+    transform-origin: center center;
+  }
+  .play {
+    width: 44px;
+    height: 44px;
+  }
+  .play svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 2px;
+  }
+  .player-status {
+    top: calc(50% + 40px);
+    font-size: 11px;
+  }
+  .controls {
+    bottom: 8px;
+    left: 10px;
+    right: 10px;
+    gap: 8px;
+    padding: 8px 6px 2px;
+  }
+  .control-icon {
+    width: 22px;
+    height: 22px;
+  }
+  .control-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .volume {
+    width: 36px;
+  }
+  .time-display {
+    font-size: 10px;
+  }
+  .speed-btn {
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+  .spacer {
+    flex-basis: 0;
+  }
+  .channels-card {
+    padding: 16px;
+  }
 }
