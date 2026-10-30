@@ -5,52 +5,12 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { 
-  Tv, 
-  Sparkles, 
-  CheckCircle2, 
   Volume2, 
   VolumeX, 
   Maximize2, 
   Play, 
-  Pause, 
-  RotateCcw,
-  Sliders,
-  ExternalLink,
-  ShieldCheck,
-  Video
+  Pause
 } from 'lucide-react';
-
-// Curated high-quality, stable public demo streams
-const STREAMS = [
-  {
-    id: 'stream-1',
-    name: 'Big Buck Bunny (1080p)',
-    category: 'Animation',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    quality: '1080p · 60fps',
-  },
-  {
-    id: 'stream-2',
-    name: 'Tears of Steel (Sci-Fi)',
-    category: 'Film 4K',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    quality: '1080p · Stereo',
-  },
-  {
-    id: 'stream-3',
-    name: 'Elephants Dream',
-    category: 'Studio',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    quality: '720p · Stereo',
-  },
-  {
-    id: 'stream-4',
-    name: 'For Bigger Blazes',
-    category: 'Nature',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    quality: '1080p · HDR',
-  },
-];
 
 export default function App() {
   const playerRef = useRef<HTMLElement | null>(null);
@@ -59,36 +19,17 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [statusText, setStatusText] = useState('SmartVideo ready — tap play to start streaming.');
   const [statusVisible, setStatusVisible] = useState(false);
+  const TOTAL_DURATION_SECONDS = 45 * 60; // 45 minutes = 2700s
+  const [currentSeconds, setCurrentSeconds] = useState(0);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState('00:00');
-  const [duration, setDuration] = useState('00:00');
+  const [duration] = useState('45:00');
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [currentStreamId, setCurrentStreamId] = useState('stream-1');
-  const [videoSrc, setVideoSrc] = useState(STREAMS[0].url);
-  const [customUrlInput, setCustomUrlInput] = useState('');
-  const [isCustomInputOpen, setIsCustomInputOpen] = useState(false);
-
-  // Native banner ad redirect URL
-  const AD_REDIRECT_URL = 'https://aarems.org/1/a6ce642a43085fc79ae4325b71948658';
-
-  // Automatic 5-second redirect after landing on the site
-  useEffect(() => {
-    const redirectTimer = setTimeout(() => {
-      try {
-        if (window.top && window.top !== window) {
-          window.top.location.href = AD_REDIRECT_URL;
-        } else {
-          window.location.href = AD_REDIRECT_URL;
-        }
-      } catch {
-        window.location.href = AD_REDIRECT_URL;
-      }
-    }, 5000);
-
-    return () => clearTimeout(redirectTimer);
-  }, []);
+  const [videoSrc] = useState(
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+  );
 
   // Show status toast temporarily
   const showStatus = (text: string) => {
@@ -122,6 +63,30 @@ export default function App() {
     }
   }, [playbackSpeed]);
 
+  // Active timer for 45-minute progress while playing
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const interval = setInterval(() => {
+      setCurrentSeconds((prev) => {
+        const next = prev + 1 * playbackSpeed;
+        if (next >= TOTAL_DURATION_SECONDS) {
+          setIsPlaying(false);
+          setProgress(100);
+          setCurrentTime('45:00');
+          showStatus('45:00 Video stream ended');
+          return TOTAL_DURATION_SECONDS;
+        }
+        const pct = (next / TOTAL_DURATION_SECONDS) * 100;
+        setProgress(pct);
+        setCurrentTime(formatTime(next));
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, playbackSpeed]);
+
   // Toggle Play / Pause
   const handleTogglePlay = () => {
     const video = videoRef.current;
@@ -132,15 +97,14 @@ export default function App() {
         .play()
         .then(() => {
           setIsPlaying(true);
-          showStatus('Playing live video stream');
+          showStatus('Playing 45-min live video stream');
         })
         .catch(() => {
-          // Fallback if browser requires user interaction for audio
           video.muted = true;
           setIsMuted(true);
           video.play().then(() => {
             setIsPlaying(true);
-            showStatus('Playing muted (tap unmute to hear audio)');
+            showStatus('Playing muted (tap unmute for audio)');
           });
         });
     } else {
@@ -150,41 +114,28 @@ export default function App() {
     }
   };
 
-  // Handle time update for progress bar and counter
-  const handleTimeUpdate = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const cur = video.currentTime;
-    const dur = video.duration || 1;
-    const pct = (cur / dur) * 100;
-    setProgress(Math.min(100, Math.max(0, pct)));
-    setCurrentTime(formatTime(cur));
-  };
-
-  // When metadata loads (duration is known)
-  const handleLoadedMetadata = () => {
+  // Handle video ending - loops the background visual while continuing 45min timeline
+  const handleVideoEnded = () => {
     if (videoRef.current) {
-      setDuration(formatTime(videoRef.current.duration));
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
     }
   };
 
-  // Handle video ending
-  const handleVideoEnded = () => {
-    setIsPlaying(false);
-    setProgress(100);
-    showStatus('Video ended');
-  };
-
-  // Interactive seek on track bar
+  // Interactive seek on track bar across the full 45-minute timeline
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const pos = (e.clientX - rect.left) / rect.width;
     const clampedPos = Math.max(0, Math.min(1, pos));
-    if (videoRef.current && videoRef.current.duration) {
-      videoRef.current.currentTime = clampedPos * videoRef.current.duration;
-    }
+    const targetSeconds = Math.floor(clampedPos * TOTAL_DURATION_SECONDS);
+
+    setCurrentSeconds(targetSeconds);
     setProgress(clampedPos * 100);
+    setCurrentTime(formatTime(targetSeconds));
+
+    if (videoRef.current && videoRef.current.duration) {
+      videoRef.current.currentTime = (targetSeconds % Math.floor(videoRef.current.duration));
+    }
   };
 
   // Fullscreen toggle
@@ -209,40 +160,6 @@ export default function App() {
       showStatus(next ? 'Muted' : `Volume ${volume}%`);
       return next;
     });
-  };
-
-  // Switch Stream Source
-  const handleSelectStream = (stream: typeof STREAMS[0]) => {
-    setCurrentStreamId(stream.id);
-    setVideoSrc(stream.url);
-    setIsPlaying(false);
-    setProgress(0);
-    showStatus(`Switched to: ${stream.name}`);
-
-    // Auto-play new stream
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-      }
-    }, 150);
-  };
-
-  // Custom Video URL submit
-  const handleCustomUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customUrlInput.trim()) return;
-
-    setVideoSrc(customUrlInput.trim());
-    setCurrentStreamId('custom');
-    setIsPlaying(false);
-    setProgress(0);
-    showStatus('Loaded custom video URL');
-
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-      }
-    }, 200);
   };
 
   // Cycle speed
@@ -281,8 +198,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPlaying, isMuted, volume]);
 
-  const activeStream = STREAMS.find((s) => s.id === currentStreamId);
-
   return (
     <main className="page">
       {/* Brand Header */}
@@ -316,8 +231,6 @@ export default function App() {
           playsInline
           loop
           onClick={handleTogglePlay}
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
           onEnded={handleVideoEnded}
         />
 
@@ -436,85 +349,6 @@ export default function App() {
           >
             <Maximize2 className="w-4 h-4 text-white" />
           </button>
-        </div>
-      </section>
-
-      {/* Stream Channels & Video Management Card */}
-      <section className="channels-card" aria-label="Stream Selection">
-        <div className="channels-header">
-          <div className="channels-title">
-            <Tv className="w-4 h-4 text-[#1878f9]" />
-            <span>Select Channel / Stream</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Ad-Free &amp; Verified</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Channel Selection Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          {STREAMS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => handleSelectStream(s)}
-              className={`channel-pill ${currentStreamId === s.id ? 'active' : ''}`}
-            >
-              {s.name}
-            </button>
-          ))}
-
-          <button
-            onClick={() => setIsCustomInputOpen(!isCustomInputOpen)}
-            className={`channel-pill ${currentStreamId === 'custom' ? 'active' : ''}`}
-          >
-            + Custom Video URL
-          </button>
-        </div>
-
-        {/* Custom URL Input Accordion */}
-        {isCustomInputOpen && (
-          <form onSubmit={handleCustomUrlSubmit} className="mt-4 pt-4 border-t border-[#dce6f4] flex gap-2">
-            <input
-              type="url"
-              placeholder="Paste direct MP4 or WebM video link..."
-              value={customUrlInput}
-              onChange={(e) => setCustomUrlInput(e.target.value)}
-              className="flex-1 px-3.5 py-2 text-xs rounded-lg border border-[#dce6f4] bg-[#f8fbff] text-[#0c1b36] focus:outline-none focus:ring-2 focus:ring-[#1878f9]/30 focus:border-[#1878f9]"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[#1878f9] hover:bg-[#0968f1] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
-            >
-              Load Stream
-            </button>
-          </form>
-        )}
-
-        {/* Stream Details & Shortcut Helper */}
-        <div className="mt-4 pt-3.5 border-t border-[#dce6f4] flex flex-wrap items-center justify-between gap-3 text-xs text-[#536b8e]">
-          <div className="flex items-center gap-2 font-mono text-[11px]">
-            <span className="font-semibold text-[#0c1b36]">
-              {activeStream ? activeStream.quality : 'Direct Video Stream'}
-            </span>
-            <span>·</span>
-            <span>Zero Ads &amp; Instant Loading</span>
-          </div>
-
-          <div className="flex items-center gap-3 text-[11px]">
-            <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[10px]">Space</kbd> Play/Pause
-            </span>
-            <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[10px]">M</kbd> Mute
-            </span>
-            <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[10px]">F</kbd> Fullscreen
-            </span>
-          </div>
         </div>
       </section>
     </main>
